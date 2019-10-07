@@ -1,0 +1,44 @@
+{
+	"compilerOptions": {
+		// build
+		"typeRoots": ["node_modules/@types"],
+		"lib": ["es2015", "dom"],
+		"target": "es6",
+		"outDir": "./lib",
+		"types": ["node"],
+		"module": "commonjs",
+
+		// build settings
+		"sourceMap": true,
+		"pretty": true,
+		"declaration": true,
+		"preserveConstEnums": true,
+		"allowSyntheticDefaultImports": true,
+		"experimentalDecorators": true,
+
+		// strict
+		"strict": true,
+		"alwaysStrict": true,
+		"strictPropertyInitialization": false,
+		"noEmit": false,
+		"importHelpers": false,
+		"noEmitHelpers": false,
+		"noEmitOnError": true,
+		"strictNullChecks": true,
+		"noUnusedLocals": true,
+		"noImplicitAny": true,
+		"noUnusedParameters": true,
+		"noImplicitReturns": true,
+		"noImplicitThis": true,
+		"esModuleInterop": true
+	},
+	"include":[
+		"./src/**/*",
+		"./tests/**/*"
+	],
+	"exclude": [
+		"./node_modules",
+		"./build",
+		"./docs"
+	]
+}

@@ -1,0 +1,78 @@
+<html>
+
+<head>
+	<script src='./kaaya.js'></script>
+</head>
+
+<body>
+	<h1>Test</h1>
+
+	<script>
+		// hack to work with webpack-dev-server
+		window.Kaaya = window.Kaaya.default;
+
+		var store = Kaaya.createStore();
+		store.set('a', 1);
+		store.set('b', 'nano');
+		var mut = store.getMutations();
+		console.log(mut);
+
+		var store2 = Kaaya.createStore();
+		store2.set('c', 42);
+		store2.setMutations(mut);
+		var a = store2.lastUpdated;
+		store2.set('b', 'nano 2');
+		store2.setMutations(mut);
+
+		var store = Kaaya.createSetStore();
+		var l1 = store.create('line 1');
+		l1.set('name', 'bob');
+		l1.set('firstname', 'bob');
+		l1.set('name', 'bob2');
+		l1.set('name', 'bob');
+		l1.set('name', 'bob3');
+		var l2 = store.create('line 2');
+		l2.set('name', 'john');
+		l2.set('firstname', 'john');
+		console.log(store);
+
+		console.log(store.getMutations());
+		console.log(JSON.stringify(store.getMutations()));
+		var store2 = Kaaya.createSetStore();
+		store2.setMutations(store.getMutations());
+		var l3 = store2.get('line 1');
+		l3.set('name', 'kebab');
+		console.log('after kebab', store2.getMutations());
+
+		store.delete('line 1');
+		console.log(store.data);
+		console.log(store2.data);
+
+		// var storeObj = Kaaya.createObjectStore();
+		// var obj = storeObj.createObject('Stuff');
+
+		// storeObj.createObject('Stuff2', obj.id);
+		// storeObj.createObject('Stuff3', obj.id);
+		// storeObj.createObject('Stuff4');
+		// // console.log(storeObj, storeObj.getMutations());
+
+		// var storeObj2 = Kaaya.createObjectStore();
+		// storeObj2.setMutations(storeObj.getMutations());
+		// // console.log(obj);
+
+		// console.log(storeObj.toString());
+		// console.log(storeObj2.toString());
+
+		// console.log('change data');
+		// obj.name = 'new name';
+		// console.log(storeObj.toString());
+		// console.log(storeObj2.toString());
+
+		// console.log('sync');
+		// storeObj2.setMutations(storeObj.getMutations());
+		// console.log(storeObj.toString());
+		// console.log(storeObj2.toString());
+	</script>
+</body>
+
+</html>
