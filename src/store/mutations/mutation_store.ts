@@ -1,6 +1,5 @@
 import { IStoreMutation, IStoreData } from "../../core/interfaces/store";
 import nanoid = require("nanoid");
-import { mutationFactory } from "./factory";
 import { Store } from "../store";
 import { now } from "../../helpers/time";
 
@@ -37,7 +36,7 @@ export class StoreMutation implements IStoreMutation {
 		return this.data;
 	}
 
-	apply(store: Store) {
+	apply(store: Store, change?: boolean) {
 		// store the mutation
 		store._mutations.add(this);
 		var prevMut = store._lastMutation.get(this.key);
@@ -46,10 +45,12 @@ export class StoreMutation implements IStoreMutation {
 		// set the value
 		store._data.set(this.key, this.value);
 		store.emitMutation(this, prevMut);
+		if (change) {
+			store.emitChange(this);
+		}
 
 		// clean old mutation
 		if (prevMut) store._mutations.delete(prevMut);
 	}
 }
 
-mutationFactory.set('StoreMutation', (e: IStoreData) => new StoreMutation(e as IStoreMutationData));

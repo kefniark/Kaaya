@@ -72,6 +72,32 @@
 		// storeObj2.setMutations(storeObj.getMutations());
 		// console.log(storeObj.toString());
 		// console.log(storeObj2.toString());
+
+		var s1 = Kaaya.createGO();
+		var store = s1.create();
+		var go = s1.getObject(store.id);
+		var goSprite = s1.getObject(store.id);
+
+		go.instantiateEntity('Transform');
+		goSprite.instantiateEntity('RectTransform');
+		goSprite.instantiateEntity('Sprite');
+
+		go.name = "youhou";
+
+		go.transform.position.x = 7;
+		go.transform.position.y = 4;
+
+		go.transform.scale.y = 5;
+		// go.tags.push("1", "2");
+		// go.tags.push("3");
+		console.log('go', go);
+
+		// console.log(JSON.stringify(s1.getMutations(), null, 2));
+
+		var s2 = Kaaya.createGO();
+		s2.setMutations(s1.getMutations());
+		var go2 = s2.getObject(store.id);
+		console.log('go', go2);
 	</script>
 </body>
 

@@ -2,6 +2,7 @@
 import { IStoreMutation, IStore, IStoreData } from '../core/interfaces/store';
 import { StoreMutation } from './mutations/mutation_store';
 import { deserializeMutation } from './mutations/factory';
+import { isObject, isArray } from '../helpers/check';
 
 export class Store implements IStore {
 	get id() { return this.get('_storeId') || ""; }
@@ -14,9 +15,18 @@ export class Store implements IStore {
 		if (id) this.set('_storeId', id);
 	}
 
+	start() {
+		for (var mut of this._mutations) {
+			this.emit(this.events.set, [mut.key, mut]);
+		}
+	}
+
 	set(key: string, value: string) {
 		var previous = this._data.get(key);
 		if (previous === value) return;
+
+		if (isArray(key)) throw new Error('cannot use an array as index');
+		if (isObject(key)) throw new Error('cannot use an object as index');
 
 		var mutation = new StoreMutation({key, value});
 		mutation.apply(this);
@@ -53,6 +63,10 @@ export class Store implements IStore {
 	public emitMutation(mutation: IStoreMutation, lastMutation?: IStoreMutation) {
 		if (lastMutation) this.emit(this.events.deprecated, [lastMutation.key, lastMutation]);
 		this.emit(this.events.set, [mutation.key, mutation]);
+	}
+
+	public emitChange(mutation: IStoreMutation) {
+		this.emit(this.events.change, [mutation])
 	}
 
 	private emit(listeners: any, args?: any) {

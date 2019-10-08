@@ -1,12 +1,11 @@
 import { Store } from "./store";
 import { IStoreMutation, IStoreData } from "../core/interfaces/store";
-import { StoreCreateMutation, StoreDeleteMutation } from "./mutations/mutation_storeset";
-import { deserializeMutation } from "./mutations/factory";
+import { deserializeMutation, mutationFactory } from "./mutations/factory";
 import nanoid = require("nanoid");
+import { StoreCreateMutation, StoreDeleteMutation } from "./mutations/mutation_storeset";
 
 export class SetStore {
 	readonly _data: Map<string, Store> = new Map();
-	// readonly _mutations = new Set<IStoreMutation>();
 	readonly _mutations = new Set<IStoreMutation>();
 
 	instantiate(key?: string) {
@@ -15,7 +14,11 @@ export class SetStore {
 
 	create(name?: string) {
 		if (!name) name = nanoid();
-		var mutation = new StoreCreateMutation({key: name});
+
+		var constr: (data: any) => StoreCreateMutation = mutationFactory.get('StoreCreateMutation') as any;
+		if (!constr) throw new Error('cannot find factory create');
+
+		var mutation = constr({key: name});
 		return mutation.apply(this);
 	}
 
@@ -28,8 +31,10 @@ export class SetStore {
 	}
 
 	delete(name: string) {
-		var mutation = new StoreDeleteMutation({key: name});
-		// this._mutations.add(mutation);
+		var constr: (data: any) => StoreDeleteMutation  = mutationFactory.get('StoreDeleteMutation') as any;
+		if (!constr) throw new Error('cannot find factory delete');
+
+		var mutation = constr({key: name});
 		this._mutations.add(mutation);
 		mutation.apply(this);
 	}
@@ -47,8 +52,10 @@ export class SetStore {
 			var storeId = (mut as any).store;
 			var obj = this._data.get(storeId);
 			if (storeId && obj) {
-				mut.apply(obj);
+				console.log(`Apply.Store[${storeId}] -> ${mut}`);
+				mut.apply(obj, true);
 			} else {
+				console.log(`Apply.Root -> ${mut}`);
 				mut.apply(this);
 			}
 		}
