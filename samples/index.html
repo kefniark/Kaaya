@@ -7,97 +7,197 @@
 <body>
 	<h1>Test</h1>
 
+	<div id="list1" style="float:left; margin: 25px; width: 300px; border: 1px solid black;"></div>
+
+	<div id="list2" style="float:left; margin: 25px; width: 300px; border: 1px solid black;"></div>
+
+	<input type="button" value="Add List 1" onclick="addGO1()"/>
+	<input type="button" value="Rm List 1" onclick="rmGO1()"/>
+	<input type="button" value="Sync <" onclick="syncLeft()"/>
+	<input type="button" value="Sync <>" onclick="syncAll()"/>
+	<input type="button" value="Sync >" onclick="syncRight()"/>
+	<input type="button" value="Add List 2" onclick="addGO2()"/>
+	<input type="button" value="Rm List 2" onclick="rmGO2()"/>
+
 	<script>
+		function setUI(div, root, go, i) {
+			var iDiv = document.createElement('div');
+			iDiv.id = 'block';
+
+			var name = (i > 0) ? `${"-".repeat(i)}> ${go.name}` : go.name;
+			iDiv.appendChild(document.createTextNode(name));
+
+			for (var id of go.childrenIds) {
+				setUI(iDiv, root, root[id], i + 2);
+			}
+			div.appendChild(iDiv);
+		}
+
+		function updateUI(root, go) {
+			root.innerHTML = "";
+			setUI(root, go, go.game, 0);
+			setUI(root, go, go.canvas, 0);
+		}
+
 		// hack to work with webpack-dev-server
 		window.Kaaya = window.Kaaya.default;
 
-		var store = Kaaya.createStore();
-		store.set('a', 1);
-		store.set('b', 'nano');
-		var mut = store.getMutations();
-		console.log(mut);
+		// var init = {};
+		// var store = Kaaya.createStore();
+		// var data = Kaaya.watch(store, init);
+		// store.observe((mut) => console.log('new mutation store1', mut));
 
-		var store2 = Kaaya.createStore();
-		store2.set('c', 42);
-		store2.setMutations(mut);
-		var a = store2.lastUpdated;
-		store2.set('b', 'nano 2');
-		store2.setMutations(mut);
+		// data.a = "nano";
+		// data.b = "tuna";
+		// data.c = { a: "nano2", b: "tuna2"};
+		// data.d = [1];
+		// delete data.c.a;
+		// data.d.push(2);
 
-		var store = Kaaya.createSetStore();
-		var l1 = store.create('line 1');
-		l1.set('name', 'bob');
-		l1.set('firstname', 'bob');
-		l1.set('name', 'bob2');
-		l1.set('name', 'bob');
-		l1.set('name', 'bob3');
-		var l2 = store.create('line 2');
-		l2.set('name', 'john');
-		l2.set('firstname', 'john');
-		console.log(store);
+		// var mut = store.history;
 
-		console.log(store.getMutations());
-		console.log(JSON.stringify(store.getMutations()));
-		var store2 = Kaaya.createSetStore();
-		store2.setMutations(store.getMutations());
-		var l3 = store2.get('line 1');
-		l3.set('name', 'kebab');
-		console.log('after kebab', store2.getMutations());
+		// var store2 = Kaaya.createStore();
+		// store2.observe((mut) => console.log('new mutation store2', mut));
+		// var data2 = Kaaya.watch(store2, {});
+		// store2.sync(data2, store.getHistory());
 
-		store.delete('line 1');
-		console.log(store.data);
-		console.log(store2.data);
+		var {data, store} = Kaaya.createGO();
+		var go1 = data;
+		var store1 = store;
+		store1.observe((mut) => console.log('new mutation store1', mut));
 
-		// var storeObj = Kaaya.createObjectStore();
-		// var obj = storeObj.createObject('Stuff');
+		var youhouId = go1.game.addChild("nano");
+		go1[youhouId].transform.position.y = 5;
 
-		// storeObj.createObject('Stuff2', obj.id);
-		// storeObj.createObject('Stuff3', obj.id);
-		// storeObj.createObject('Stuff4');
-		// // console.log(storeObj, storeObj.getMutations());
+		var root = document.getElementById('list1');
+		store1.observe(() => setTimeout(() => updateUI(root, go1), 50));
+		updateUI(root, go1);
 
-		// var storeObj2 = Kaaya.createObjectStore();
-		// storeObj2.setMutations(storeObj.getMutations());
-		// // console.log(obj);
+		var {data, store} = Kaaya.createGO();
+		var go2 = data;
+		var store2 = store;
+		store2.observe((mut) => console.log('new mutation store2', mut));
 
-		// console.log(storeObj.toString());
-		// console.log(storeObj2.toString());
+		// store2.sync(go2, store1);
 
-		// console.log('change data');
-		// obj.name = 'new name';
-		// console.log(storeObj.toString());
-		// console.log(storeObj2.toString());
+		var root2 = document.getElementById('list2');
+		store2.observe(() => setTimeout(() => updateUI(root2, go2), 50));
+		updateUI(root2, go2);
 
-		// console.log('sync');
-		// storeObj2.setMutations(storeObj.getMutations());
-		// console.log(storeObj.toString());
-		// console.log(storeObj2.toString());
+		window.addGO1 = function () {
+			go1.canvas.addChild("test" + Math.round(Math.random() * 1000));
+		}
 
-		var s1 = Kaaya.createGO();
-		var store = s1.create();
-		var go = s1.getObject(store.id);
-		var goSprite = s1.getObject(store.id);
+		window.rmGO1 = function () {
+			if (go1.canvas.childrenIds.length < 1) return;
+			go1[go1.canvas.childrenIds[0]].delete();
+		}
 
-		go.instantiateEntity('Transform');
-		goSprite.instantiateEntity('RectTransform');
-		goSprite.instantiateEntity('Sprite');
+		window.addGO2 = function () {
+			go2.canvas.addChild("test" + Math.round(Math.random() * 1000));
+		}
 
-		go.name = "youhou";
+		window.rmGO2 = function () {
+			if (go2.canvas.childrenIds.length < 1) return;
+			go2[go2.canvas.childrenIds[0]].delete();
+		}
 
-		go.transform.position.x = 7;
-		go.transform.position.y = 4;
+		var right = 0;
+		var left = 0;
+		window.syncRight = function () {
+			store2.sync(go2, store1.getHistory());
+		}
 
-		go.transform.scale.y = 5;
-		// go.tags.push("1", "2");
-		// go.tags.push("3");
-		console.log('go', go);
+		window.syncLeft = function () {
+			store1.sync(go1, store2.getHistory());
+		}
 
-		// console.log(JSON.stringify(s1.getMutations(), null, 2));
+		window.syncAll = function () {
+			syncRight();
+			syncLeft();
+		}
 
-		var s2 = Kaaya.createGO();
-		s2.setMutations(s1.getMutations());
-		var go2 = s2.getObject(store.id);
-		console.log('go', go2);
+		// var store2 = Kaaya.createStore();
+		// store2.set('c', 42);
+		// store2.setMutations(mut);
+		// var a = store2.lastUpdated;
+		// store2.set('b', 'nano 2');
+		// store2.setMutations(mut);
+
+		// var store = Kaaya.createSetStore();
+		// var l1 = store.create('line 1');
+		// l1.set('name', 'bob');
+		// l1.set('firstname', 'bob');
+		// l1.set('name', 'bob2');
+		// l1.set('name', 'bob');
+		// l1.set('name', 'bob3');
+		// var l2 = store.create('line 2');
+		// l2.set('name', 'john');
+		// l2.set('firstname', 'john');
+		// console.log(store);
+
+		// // console.log(store.getMutations());
+		// // console.log(JSON.stringify(store.getMutations()));
+		// var store2 = Kaaya.createSetStore();
+		// store2.setMutations(store.getMutations());
+		// var l3 = store2.get('line 1');
+		// l3.set('name', 'kebab');
+		// // console.log('after kebab', store2.getMutations());
+
+		// store.delete('line 1');
+		// console.log(store.data);
+		// console.log(store2.data);
+
+		// // var storeObj = Kaaya.createObjectStore();
+		// // var obj = storeObj.createObject('Stuff');
+
+		// // storeObj.createObject('Stuff2', obj.id);
+		// // storeObj.createObject('Stuff3', obj.id);
+		// // storeObj.createObject('Stuff4');
+		// // // console.log(storeObj, storeObj.getMutations());
+
+		// // var storeObj2 = Kaaya.createObjectStore();
+		// // storeObj2.setMutations(storeObj.getMutations());
+		// // // console.log(obj);
+
+		// // console.log(storeObj.toString());
+		// // console.log(storeObj2.toString());
+
+		// // console.log('change data');
+		// // obj.name = 'new name';
+		// // console.log(storeObj.toString());
+		// // console.log(storeObj2.toString());
+
+		// // console.log('sync');
+		// // storeObj2.setMutations(storeObj.getMutations());
+		// // console.log(storeObj.toString());
+		// // console.log(storeObj2.toString());
+
+		// var s1 = Kaaya.createGO();
+		// var store = s1.create();
+		// var go = s1.getObject(store.id);
+		// var goSprite = s1.getObject(store.id);
+
+		// go.instantiateEntity('Transform');
+		// goSprite.instantiateEntity('RectTransform');
+		// goSprite.instantiateEntity('Sprite');
+
+		// go.name = "youhou";
+
+		// go.transform.position.x = 7;
+		// go.transform.position.y = 4;
+
+		// go.transform.scale.y = 5;
+		// // go.tags.push("1", "2");
+		// // go.tags.push("3");
+		// console.log('go', go);
+
+		// // console.log(JSON.stringify(s1.getMutations(), null, 2));
+
+		// var s2 = Kaaya.createGO();
+		// s2.setMutations(s1.getMutations());
+		// var go2 = s2.getObject(store.id);
+		// console.log('go', go2);
 	</script>
 </body>
 

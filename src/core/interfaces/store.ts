@@ -15,7 +15,7 @@ export interface IStoreMutation {
 
 export interface IStore {
 	id: string;
-	readonly _data: Map<string, string>;
+	// readonly _data: Map<string, string>;
 	set(key: string, value: string): void;
 	get(key: string, def?: string): string | undefined;
 	has(key: string): boolean;
