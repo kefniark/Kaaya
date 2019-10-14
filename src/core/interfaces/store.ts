@@ -15,17 +15,8 @@ export interface IStoreMutation {
 
 export interface IStore {
 	id: string;
-	// readonly _data: Map<string, string>;
 	set(key: string, value: string): void;
 	get(key: string, def?: string): string | undefined;
 	has(key: string): boolean;
 	getMutations(time?: number): IStoreData[];
 }
-
-// export interface IStoreOjbect {
-// 	lastUpdated: number;
-// 	readonly _data: Map<string, string>;
-// 	set(key: string, value: string): void;
-// 	get(key: string, def?: string): string | undefined;
-// 	getMutations(): Set<IStoreMutation>;
-// }

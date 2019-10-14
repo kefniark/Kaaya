@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Kaaya Sample !</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.css">
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<script src='./kaaya.js'></script>
+	<style>
+		.blockGO {
+			float:left;
+			margin: 20px;
+			width: 550px;
+			border: 1px solid #b8bbd4;
+			border-radius: 10px;
+			padding: 10px 8px;
+		}
+	</style>
+</head>
+
+<body>
+	<section class="section">
+		<div class="container">
+			<h1 class="title">Kaaya Sample - Table</h1>
+
+			<div id="app">
+				<div style="display: block; overflow: auto;">
+					<list v-for="store in stores" v-bind:proxy="store.proxy" v-bind:key="store.key" v-bind:name="store.id" v-bind:id="store.key"></list>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<script>
+		// hack to work with webpack-dev-server
+		window.Kaaya = window.Kaaya.default;
+
+		Array.prototype.random = function () {
+			return this[Math.floor((Math.random()*this.length))];
+		}
+
+		// create server data store
+		var objServer = Kaaya.createTable();
+
+		// create few clients
+		var objClient1 = Kaaya.createTable();
+		objServer.store.observe((id, mut) => {
+			if (id !== 'apply') return;
+			var history1 = JSON.parse(JSON.stringify([...objServer.store.getHistory()]));
+			//console.log('server', mut, history1);
+			setTimeout(() => {
+				objClient1.store.sync([objClient1.srcData], history1);
+			}, 500);
+		});
+
+		// set data
+		objServer.data.levels = [];
+		objServer.data.levels.push({ id: 1, name: "first_level", difficulty: "easy" });
+		objServer.data.levels.push({ id: 2, name: "second_level", difficulty: "hard" });
+
+		objServer.data.translation = [];
+		objServer.data.translation.push({ key: "first_level", used: true, fr: "premier level", en: "first level" });
+		objServer.data.translation.push({ key: "second_level", used: true, fr: "deuxieme level", en: "second level" });
+		objServer.data.translation.push({ key: "third_level", used: false, fr: "troisieme level", en: "third level" });
+
+		Vue.component('list-elem', {
+			props: ['proxy', 'elem', 'elemId'],
+			template: `
+				<div style="margin-top: 25px;">
+					<h3 class="title is-3" style="text-transform: capitalize;">{{ elemId }}</h3>
+					<table class="table is-bordered is-striped is-hoverable is-fullwidth">
+						<thead>
+							<th v-for="(item, id) in elem[0]">{{id}}</th>
+						</thead>
+						<tbody>
+							<tr v-for="(item, id) in elem">
+								<td v-for="(item2, id2) in elem[0]" v-bind:key="id2">{{ item[id2] }}</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			`,
+			mounted: function() {
+				var store = mapStore.get(this.proxy).store;
+				store.observe((id, mut) => {
+					if (id !== 'apply') return;
+					if (!mut.path.startsWith(this.elemId)) return;
+					this.$forceUpdate();
+				});
+			}
+		})
+
+		Vue.component('list', {
+			props: ['proxy', 'name', 'id'],
+			data: function() {
+				return {};
+			},
+			methods: {
+				add: function () {
+					var data = mapStore.get(this.proxy).data;
+					var key = Math.random().toString(36).substr(2, 5);
+					data.levels[objServer.data.levels.length] = { id: data.levels.length + 1, name: key, difficulty: "~" };
+				},
+				set: function () {
+					var data = mapStore.get(this.proxy).data;
+					data.translation[0].used = !data.translation[0].used;
+				}
+			},
+			template: `
+			<div class="blockGO">
+				<label class="label">{{ name }} (<small>{{ id }}</small>)</label>
+				<div>
+					<list-elem v-for="(child, childId) in proxy" v-bind:proxy="proxy" v-bind:elem="child" v-bind:key="childId" v-bind:elemId="childId"></list-elem>
+				</div>
+				<div style="text-align: center; margin-top: 10px;">
+					<input class="button is-link" type="button" value="Add" v-on:click="this.add"/>
+					<input class="button is-link" type="button" value="Set" v-on:click="this.set"/>
+				</div>
+			</div>`,
+			mounted: function() {
+				var store = mapStore.get(this.proxy).store;
+				store.observe((id, mut) => {
+					if (id !== 'apply') return;
+					this.$forceUpdate();
+				});
+			}
+		})
+
+		var mapStore = new WeakMap();
+		mapStore.set(objServer.proxy, objServer);
+		mapStore.set(objClient1.proxy, objClient1);
+
+		var app = new Vue({
+			el: '#app',
+			data: {
+				stores: [
+					{ id: "Server", key: objServer.store.id, proxy: objServer.proxy },
+					{ id: "Client", key: objClient1.store.id, proxy: objClient1.proxy }
+				]
+			}
+		})
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Kaaya Sample !</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.css">
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<script src='./kaaya.js'></script>
+	<style>
+		.blockGO {
+			float:left;
+			margin: 20px;
+			width: 400px;
+			border: 1px solid #b8bbd4;
+			border-radius: 10px;
+			padding: 10px 8px;
+		}
+	</style>
+</head>
+
+<body>
+	<section class="section">
+		<div class="container">
+			<h1 class="title">Kaaya Sample - GameObject tree</h1>
+
+			<div id="app">
+				<div style="display: block; overflow: auto;">
+					<list v-for="store in stores" v-bind:proxy="store.proxy" v-bind:key="store.key" v-bind:name="store.id" v-bind:id="store.key"></list>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<script>
+		// hack to work with webpack-dev-server
+		window.Kaaya = window.Kaaya.default;
+
+		Array.prototype.random = function () {
+			return this[Math.floor((Math.random()*this.length))];
+		}
+
+		Vue.component('list-elem', {
+			props: ['proxy', 'elemId'],
+			template: `
+				<div style="padding-left: 25px;">
+					{{ proxy[elemId].name }} (<small>{{ elemId }}</small>)
+					<span v-if="proxy[elemId].transform !== undefined">
+						[
+							x:{{ proxy[elemId].transform.position.x }},
+							y:{{ proxy[elemId].transform.position.y }},
+							z:{{ proxy[elemId].transform.position.z }}
+						]
+					</span>
+					<list-elem v-for="childId of proxy[elemId].childrenIds" v-bind:proxy="proxy" v-bind:key="childId" v-bind:elemId="childId"></list-elem>
+				</div>
+			`,
+			created: function() {
+				console.log('proxy', this.proxy, this.elemId);
+			},
+			mounted: function() {
+				var store = mapStore.get(this.proxy).store;
+				store.observe((id, mut) => {
+					if (id !== 'apply') return;
+					if (!this.proxy[this.elemId]) return;
+					var ids = [...Object.values(this.proxy[this.elemId].entityIds), this.elemId];
+					if (!ids.some(x => mut.path.startsWith(x))) return;
+					this.$forceUpdate();
+				});
+			}
+		})
+
+		Vue.component('list', {
+			props: ['proxy', 'name', 'id'],
+			data: function() {
+				return {
+					childs: ['canvas', 'game']
+				}
+			},
+			methods: {
+				send: function () {
+					var data = mapStore.get(this.proxy).data;
+					var store = mapStore.get(this.proxy).store;
+					objServer.store.sync([data], store.getHistory());
+				},
+				mvObj: function () {
+					var data = mapStore.get(this.proxy).data;
+					var childId = data.game.childrenIds[0];
+					if (childId) {
+						data[childId].gameobject.name = `sprite ${Math.round(Math.random() * 100)}`
+						data[childId].transform.position.x = Math.round(Math.random() * 20) - 10;
+						data[childId].transform.position.y = Math.round(Math.random() * 20) - 10;
+					}
+				},
+				addGO: function () {
+					var data = mapStore.get(this.proxy).data;
+					data.canvas.addChild("test" + Math.round(Math.random() * 1000));
+				},
+				rmGO: function () {
+					var data = mapStore.get(this.proxy).data;
+					var childId = data.canvas.childrenIds.random();
+					if (childId) data[childId].delete();
+				},
+				undo: function () {
+					var store = mapStore.get(this.proxy).store;
+					store.undo();
+				},
+				redo: function () {
+					var store = mapStore.get(this.proxy).store;
+					store.redo();
+				}
+			},
+			template: `
+			<div class="blockGO">
+				<label class="label">{{ name }} (<small>{{ id }}</small>)</label>
+				<div>
+					<list-elem :proxy="proxy" elemId="game"></list-elem>
+					<list-elem :proxy="proxy" elemId="canvas"></list-elem>
+				</div>
+				<div style="text-align: center; margin-top: 10px;">
+					<input class="button is-link" type="button" value="Add" v-on:click="this.addGO"/>
+					<input class="button is-link" type="button" value="Delete" v-on:click="this.rmGO"/>
+					<input class="button is-link" type="button" value="Move" v-on:click="this.mvObj"/>
+					<input v-if="name != 'Server'" class="button is-link" type="button" value="Send" v-on:click="this.send"/>
+					<span v-else>
+						<input class="button is-link" type="button" value="<" v-on:click="this.undo"/>
+						<input class="button is-link" type="button" value=">" v-on:click="this.redo"/>
+					</span>
+				</div>
+			</div>`
+		})
+
+		// create server data store
+		var objServer = Kaaya.createGO();
+		var spriteId = objServer.data.game.addChild('sprite');
+		console.log(objServer.data, spriteId);
+		objServer.data[spriteId].addEntity('transform');
+		objServer.data[spriteId].transform.position.y = 5;
+
+		// create few clients
+		var objClient1 = Kaaya.createGO();
+		var objClient2 = Kaaya.createGO();
+
+		objServer.store.observe((id, mut) => {
+			if (id !== 'apply') return;
+
+			var history1 = JSON.parse(JSON.stringify([...objServer.store.getHistory()]));
+			var history2 = JSON.parse(JSON.stringify([...objServer.store.getHistory()]));
+			console.log('new mutation on server', mut, history1, history2);
+			setTimeout(() => {
+				objClient1.store.sync([objClient1.data], history1);
+			}, 500);
+			setTimeout(() => {
+				objClient2.store.sync([objClient2.data], history2);
+			}, 2000);
+		});
+
+		var mapStore = new WeakMap();
+		mapStore.set(objServer.proxy, objServer);
+		mapStore.set(objClient1.proxy, objClient1);
+		mapStore.set(objClient2.proxy, objClient2);
+
+		var app = new Vue({
+			el: '#app',
+			data: {
+				stores: [
+					{ id: "Server", key: objServer.store.id, proxy: objServer.proxy },
+					{ id: "Client 1 ~500ms", key: objClient1.store.id, proxy: objClient1.proxy },
+					{ id: "Client 2 ~2000ms", key: objClient2.store.id, proxy: objClient2.proxy }
+				]
+			}
+		})
+	</script>
+</body>
+
+</html>
