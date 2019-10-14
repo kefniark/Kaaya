@@ -230,7 +230,7 @@ export class Kaaya {
 					throw new Error(`Unknown mutation ${mut.name}`)
 				}
 				if (this.mutationIds.has(mut.id)) {
-					console.warn('skip mutation (already applied)', mut.id);
+					// console.warn('skip mutation (already applied)', mut.id);
 					return;
 				}
 				for (var o of obj) {

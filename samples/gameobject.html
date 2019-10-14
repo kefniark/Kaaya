@@ -82,7 +82,7 @@
 				send: function () {
 					var data = mapStore.get(this.proxy).data;
 					var store = mapStore.get(this.proxy).store;
-					objServer.store.sync([data], store.getHistory());
+					objServer.store.sync([objServer.data, objServer.proxy], store.getHistory());
 				},
 				mvObj: function () {
 					var data = mapStore.get(this.proxy).data;
