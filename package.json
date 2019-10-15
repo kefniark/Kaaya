@@ -21,7 +21,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/nanoid": "^2.1.0",
-    "@types/node": "^12.7.11",
+    "@types/node": "^12.7.12",
     "@types/tape": "^4.2.33",
     "npm-check": "^5.9.0",
     "npm-run-all": "^4.1.5",
@@ -31,15 +31,16 @@
     "tape": "^4.11.0",
     "ts-loader": "^6.2.0",
     "ts-node": "^8.4.1",
-    "typescript": "^3.6.3",
-    "webpack": "^4.41.0",
+    "typescript": "^3.6.4",
+    "webpack": "^4.41.2",
     "webpack-auto-inject-version": "^1.2.2",
     "webpack-cli": "^3.3.9",
     "webpack-dev-server": "^3.8.2",
     "webpack-shell-plugin": "^0.5.0"
   },
   "dependencies": {
-    "nanoid": "^2.1.2",
-    "on-change": "^1.6.2"
+    "nanoid": "^2.1.3",
+    "on-change": "^1.6.2",
+    "ts-events": "^3.3.1"
   }
 }

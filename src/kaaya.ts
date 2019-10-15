@@ -1,22 +1,8 @@
 import onChange = require('on-change');
 import nanoid = require("nanoid");
 import { now } from './helpers/time';
-
-function pathWalk(obj: any, path: string) {
-	let root = obj;
-	let index;
-	let prop = path;
-	while (path) {
-		index = path.indexOf(".");
-		if (index === -1) {
-			return { root, property: path };
-		}
-		prop = path.slice(0, index);
-		root = root[prop];
-		path = path.slice(index + 1);
-	}
-	return { root, property: '' };
-}
+import { pathWalk } from './helpers/check';
+import { KeyStore } from './stores/keyStore';
 
 const metaGameObject = new Map<string, any>();
 
@@ -258,17 +244,18 @@ export class Kaaya {
 	}
 
 	createKeystore () {
-		var store = this.createStore();
-		var srcData: any = {};
-		var proxy: any = JSON.parse(JSON.stringify(srcData));
-		var data = this.watch(store, srcData, [srcData, proxy]);
+		return new KeyStore();
+		// var store = this.createStore();
+		// var srcData: any = {};
+		// var proxy: any = JSON.parse(JSON.stringify(srcData));
+		// var data = this.watch(store, srcData, [srcData, proxy]);
 
-		return {
-			srcData,
-			data,
-			proxy,
-			store
-		};
+		// return {
+		// 	srcData,
+		// 	data,
+		// 	proxy,
+		// 	store
+		// };
 	}
 
 	createTable () {
