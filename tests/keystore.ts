@@ -83,3 +83,112 @@ test('[Kaaya.Keystore.Proxy]', (t: Test) => {
 	t.equal(proxy2.b, 3, 'check the proxy data are updated too');
 	t.end();
 });
+
+test('[Kaaya.Keystore.Transaction]', (t: Test) => {
+	var store = new KeyStore({ a: 1, b: 2 });
+
+	store.data.b = 3;
+
+	store.transactionStart({ id: "changeStuff" });
+	store.data.b = 4;
+	store.data.a = 2;
+	store.data.c = 5;
+	store.transactionEnd();
+
+	t.equal(store.history.length, 2);
+	t.equal(store.data.b, 4);
+	t.equal(store.data.c, 5);
+
+	var store2 = new KeyStore({ a: 1, b: 2 });
+	store2.sync(store.history);
+
+	t.equal(store2.history.length, 2);
+	t.equal(store2.data.b, 4);
+	t.equal(store2.data.c, 5);
+
+	t.end();
+});
+
+test('[Kaaya.Keystore.UndoRedoSet]', (t: Test) => {
+	var store = new KeyStore({ a: 1, b: 2 });
+
+	store.data.b = 3; // generate a `set` mutation
+	store.data.b = 4; // generate a `set` mutation
+
+	var store2 = new KeyStore({ a: 1, b: 2 });
+	store2.sync(store.history);
+	t.deepEqual(store.history, store2.history);
+
+	t.equal(store.data.b, 4);
+	t.equal(store2.data.b, 4);
+	store.undo();
+	t.equal(store.data.b, 3, 'check undo works');
+	store.undo();
+	t.equal(store.data.b, 2, 'check undo works multiple time');
+	t.equal(store2.data.b, 4);
+	store2.sync(store.history);
+	t.equal(store2.data.b, 2, 'check undo is sync');
+	store.redo();
+	t.equal(store.data.b, 3, 'check redo works');
+	store.redo();
+	t.equal(store.data.b, 4, 'check redo works multiple time');
+	store2.sync(store.history);
+	t.equal(store2.data.b, 4, 'check redo is sync');
+	t.end();
+});
+
+test('[Kaaya.Keystore.UndoRedoAdd]', (t: Test) => {
+	var store = new KeyStore({ a: 1, b: 2 });
+
+	store.data.b = 3; // generate a `set` mutation
+
+	store.transactionStart({id: "1"});
+	store.data.c = { a: 2, b: 3, c: 4 };
+	store.transactionEnd();
+
+	store.transactionStart({id: "2"});
+	store.data.b = 4; // generate a `set` mutation
+	delete store.data.c;
+	store.transactionEnd();
+
+	store.transactionStart({id: "3"});
+	store.data.b = 5;
+	store.transactionEnd();
+
+	var store2 = new KeyStore({ a: 1, b: 2 });
+	store2.sync(store.history);
+	t.deepEqual(store.history, store2.history, 'Check history');
+
+	t.equal(store.data.b, 5, 'check values before');
+	t.equal(store.data.c, undefined);
+	t.equal(store2.data.c, undefined);
+
+	store.undo();
+	t.equal(store.data.b, 4, 'revert transaction');
+
+	store.undo();
+	t.equal(store.data.c.b, 3, 'revert delete');
+	t.equal(store.data.b, 3);
+	store2.sync(store.history);
+	t.equal(store2.data.c.b, 3, 'revert delete sync');
+
+	store.undo();
+	t.equal(store.data.c, undefined, 'revert add');
+	store2.sync(store.history);
+	t.equal(store2.data.c, undefined, 'revert add sync');
+
+	store.redo();
+	t.equal(store.data.c.b, 3, 'redo add');
+	store2.sync(store.history);
+	t.equal(store2.data.c.b, 3, 'redo add sync');
+
+	store.redo();
+	store.redo();
+
+	store2.sync(store.history);
+	t.equal(store.data.b, 5, 'check final values after');
+	t.equal(store.data.c, undefined);
+	// t.equal(store2.data.c, undefined);
+
+	t.end();
+});

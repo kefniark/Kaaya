@@ -24,11 +24,20 @@ export class BaseStore {
 			if (previousValue === undefined) {
 				this._store.createMutation('add', path, { value, type: typeof value });
 			} else if (value === undefined){
-				this._store.createMutation('delete', path, {});
+				var mut = this._store.createMutation('delete', path, {});
+				this._store.keepUndoObject(mut.id, previousValue);
 			} else {
 				this._store.createMutation('set', path, { value, old: previousValue });
 			}
 		});
+	}
+
+	public transactionStart(meta: any = {}) {
+		this._store.transactionStart(meta);
+	}
+
+	public transactionEnd() {
+		this._store.transactionEnd();
 	}
 
 	public observe (cb: (mut: any) => void) {
@@ -43,5 +52,17 @@ export class BaseStore {
 		var proxy = JSON.parse(JSON.stringify(this._originalData));
 		this._updatedObj.push(proxy);
 		return proxy;
+	}
+
+	public undo() {
+		var mutId = this._store.nextUndoId;
+		if (mutId !== -1) this._store.createMutation('undo', '', { id: mutId });
+		// console.log('undo', mutId, this.data);
+	}
+
+	public redo() {
+		var mutId = this._store.nextRedoId;
+		if (mutId !== -1) this._store.createMutation('redo', '', { id: mutId });
+		// console.log('redo', mutId, this.data);
 	}
 }
