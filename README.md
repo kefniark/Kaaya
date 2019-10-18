@@ -4,6 +4,7 @@
 
 [![Build Status](https://travis-ci.org/kefniark/Kaaya.svg?branch=master)](https://travis-ci.org/kefniark/Kaaya)
 [![Coverage Status](https://coveralls.io/repos/github/kefniark/Kaaya/badge.svg?branch=master)](https://coveralls.io/github/kefniark/Kaaya?branch=master)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/c0fc8bf9f62a4067a2d1454c1eba454e)](https://www.codacy.com/manual/kefniark/Kaaya?utm_source=github.com&utm_medium=referral&utm_content=kefniark/Kaaya&utm_campaign=Badge_Grade)
 
 Kaaya is a delightful javascript library which target on syncing data between Applications.
 
