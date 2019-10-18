@@ -1,4 +1,4 @@
-export function now() {
+export function now(): number {
 	if (typeof window !== "undefined") {
 		return performance.now()
 	} else {

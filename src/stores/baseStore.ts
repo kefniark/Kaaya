@@ -2,16 +2,16 @@ import { DataStore } from "./dataStore"
 import onChange = require("on-change")
 
 export class BaseStore {
-	public get id() {
+	public get id(): string {
 		return this._store.id
 	}
-	public get history() {
+	public get history(): any[] {
 		return this._store.getHistory()
 	}
-	public get data() {
+	public get data(): any {
 		return this._data
 	}
-	public get serialize() {
+	public get serialize(): any {
 		return this._originalData
 	}
 	private _store: DataStore
@@ -32,7 +32,7 @@ export class BaseStore {
 			if (previousValue === undefined) {
 				this._store.createMutation("add", path, { value, type: typeof value })
 			} else if (value === undefined) {
-				var mut = this._store.createMutation("delete", path, {})
+				const mut = this._store.createMutation("delete", path, {})
 				this._store.keepUndoObject(mut.id, previousValue)
 			} else {
 				this._store.createMutation("set", path, { value, old: previousValue })
@@ -40,36 +40,36 @@ export class BaseStore {
 		})
 	}
 
-	public transactionStart(meta: any = {}) {
+	public transactionStart(meta: any = {}): void {
 		this._store.transactionStart(meta)
 	}
 
-	public transactionEnd() {
+	public transactionEnd(): void {
 		this._store.transactionEnd()
 	}
 
-	public observe(cb: (mut: any) => void) {
+	public observe(cb: (mut: any) => void): void {
 		this._store.evtApply.attach(cb)
 	}
 
-	public sync(history: any[]) {
+	public sync(history: any[]): void {
 		this._store.sync(this._updatedObj, history)
 	}
 
-	public instantiateProxy() {
-		var proxy = JSON.parse(JSON.stringify(this._originalData))
+	public instantiateProxy(): any {
+		const proxy = JSON.parse(JSON.stringify(this._originalData))
 		this._updatedObj.push(proxy)
 		return proxy
 	}
 
-	public undo() {
-		var mutId = this._store.nextUndoId
+	public undo(): void {
+		const mutId = this._store.nextUndoId
 		if (mutId !== -1) this._store.createMutation("undo", "", { id: mutId })
 		// console.log('undo', mutId, this.data);
 	}
 
-	public redo() {
-		var mutId = this._store.nextRedoId
+	public redo(): void {
+		const mutId = this._store.nextRedoId
 		if (mutId !== -1) this._store.createMutation("redo", "", { id: mutId })
 		// console.log('redo', mutId, this.data);
 	}

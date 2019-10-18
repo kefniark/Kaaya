@@ -1,7 +1,7 @@
 import { BaseStore } from "./baseStore"
 
 export class KeyStore extends BaseStore {
-	createTable(name: string) {
+	createTable(name: string): void {
 		if (!name) throw new Error("wrong parameter")
 		if (this.data[name]) throw new Error("table already exist " + name)
 		this.data[name] = {}
@@ -13,25 +13,25 @@ export class KeyStore extends BaseStore {
 		return key in this.data[table]
 	}
 
-	get(table: string, key: string, def: string | number = "") {
+	get(table: string, key: string, def: string | number = ""): any {
 		if (!table || !key) throw new Error("wrong parameter")
 		if (!this.has(table, key)) return def
 		return this.data[table][key]
 	}
 
-	set(table: string, key: string, value: string | number = "") {
+	set(table: string, key: string, value: string | number = ""): void {
 		if (!table || !key) throw new Error("wrong parameter")
 		if (!this.data || !this.data[table]) throw new Error("table dont exist " + table)
 		this.data[table][key] = value
 	}
 
-	delete(table: string, key: string) {
+	delete(table: string, key: string): void {
 		if (!table || !key) throw new Error("wrong parameter")
 		if (!this.data || !this.data[table]) throw new Error("table dont exist " + table)
 		delete this.data[table][key]
 	}
 
-	deleteTable(name: string) {
+	deleteTable(name: string): void {
 		if (!name) throw new Error("wrong parameter")
 		delete this.data[name]
 	}
