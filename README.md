@@ -2,6 +2,9 @@
 
 # Kaaya
 
+[![Build Status](https://travis-ci.org/kefniark/Kaaya.svg?branch=master)](https://travis-ci.org/kefniark/Kaaya)
+[![Coverage Status](https://coveralls.io/repos/github/kefniark/Kaaya/badge.svg?branch=master)](https://coveralls.io/github/kefniark/Kaaya?branch=master)
+
 Kaaya is a delightful javascript library which target on syncing data between Applications.
 
 -   Listen for object and track change (mutation)

@@ -19,16 +19,16 @@
 		"build:dist:prod": "webpack --config=webpack.config.prod.js",
 		"build:definition": "tsc --p ./tsconfig.json --declaration true --emitDeclarationOnly true --outDir ./build/declarations",
 		"build:clean": "rimraf lib && rimraf build/lib && rimraf build/declarations/tests",
+		"coverage": "jest --coverage",
+		"coveralls": "jest --coverage && cat ./coverage/lcov.info | coveralls",
 		"dev": "webpack-dev-server --config webpack.config.dev.js",
 		"prettier": "run-s prettier:**",
 		"prettier:src": "prettier --config .prettierrc.yaml --write \"src/**/*.ts\"",
 		"prettier:tests": "prettier --config .prettierrc.yaml --write \"tests/**/*.ts\"",
 		"test": "run-s test:**",
 		"test:unittest": "jest",
-		"test:coverage": "jest --coverage",
 		"test:lint": "prettier --config .prettierrc.yaml --check \"src/**/*.ts\"",
 		"test:depencencies": "npm-check --production || echo \"Run 'npm run update' to interactively update dependencies for this project\"",
-		"coveralls": "",
 		"update": "npm-check --update"
 	},
 	"author": {
