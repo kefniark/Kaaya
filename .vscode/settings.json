@@ -1,0 +1,15 @@
+{
+	// auto save and format (prettier)
+	"editor.formatOnSave": true,
+	"editor.formatOnPaste": true,
+	"editor.renderWhitespace": "boundary",
+
+	// smooth typing :P
+	"editor.mouseWheelZoom": true,
+	"editor.cursorBlinking": "smooth",
+	"editor.cursorSmoothCaretAnimation": true,
+
+	// highlight modified tabs
+	"workbench.editor.highlightModifiedTabs": true,
+	"explorer.sortOrder": "type"
+}

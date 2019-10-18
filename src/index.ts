@@ -1,4 +1,3 @@
-import { Kaaya } from './kaaya';
+import { Kaaya } from "./kaaya"
 
-export default new Kaaya();
-
+export default new Kaaya()

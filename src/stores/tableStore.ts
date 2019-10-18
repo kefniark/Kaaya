@@ -1,5 +1,3 @@
-import { BaseStore } from "./baseStore";
+import { BaseStore } from "./baseStore"
 
-export class TableStore extends BaseStore {
-
-}
+export class TableStore extends BaseStore {}

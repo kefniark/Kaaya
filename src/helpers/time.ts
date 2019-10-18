@@ -1,7 +1,7 @@
 export function now() {
-	if (typeof(window) !== 'undefined') {
-		return performance.now();
+	if (typeof window !== "undefined") {
+		return performance.now()
 	} else {
-		return process.hrtime()[1];
+		return process.hrtime()[1]
 	}
 }
