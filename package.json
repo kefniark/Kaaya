@@ -1,8 +1,17 @@
 {
 	"name": "kaaya",
+	"description": "DataStore synchronization library",
+	"license": "MIT",
 	"version": "0.0.1",
-	"description": "",
-	"main": "index.js",
+	"main": "build/kaaya.js",
+	"types": "build/declarations/index.d.ts",
+	"repository": {
+		"type": "git",
+		"url": "git@github.com:kefniark/Kaaya.git"
+	},
+	"bugs": {
+		"url": "https://github.com/kefniark/Kaaya/issues"
+	},
 	"scripts": {
 		"build": "run-s build:pre && run-p build:dist:* && run-p build:definition && run-s build:clean",
 		"build:pre": "tsc && rimraf build",
@@ -19,14 +28,18 @@
 		"test:coverage": "jest --coverage",
 		"test:lint": "prettier --config .prettierrc.yaml --check \"src/**/*.ts\"",
 		"test:depencencies": "npm-check --production || echo \"Run 'npm run update' to interactively update dependencies for this project\"",
+		"coveralls": "",
 		"update": "npm-check --update"
 	},
-	"author": "",
-	"license": "ISC",
+	"author": {
+		"name": "Kevin destrem",
+		"email": "kef1@free.fr"
+	},
 	"devDependencies": {
 		"@types/jest": "^24.0.19",
 		"@types/nanoid": "^2.1.0",
 		"@types/node": "^12.11.1",
+		"coveralls": "^3.0.7",
 		"jest": "^24.9.0",
 		"npm-check": "^5.9.0",
 		"npm-run-all": "^4.1.5",

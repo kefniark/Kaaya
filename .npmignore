@@ -1,0 +1,24 @@
+# Remove IDE
+.vscode/
+coverage/
+node_modules/
+public/
+lib/
+
+.DS_Store
+npm-debug.log
+
+# remove dev code from npm publish
+.vscode
+samples/
+src/
+tests/
+tools/
+
+# config files
+tsconfig.json
+webpack.config.dev.js
+webpack.config.prod.js
+.editorconfig
+.prettierrc.yaml
+jest.config.js
