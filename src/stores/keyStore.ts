@@ -38,11 +38,15 @@ export class KeyStore extends BaseStore {
 		delete this.data[name]
 	}
 
-	stringifyIni(): string {
+	stringifyJSON(): string {
+		return JSON.stringify(this.data, null, 2)
+	}
+
+	stringifyINI(): string {
 		return stringifyIni(this.data)
 	}
 
-	stringifyYaml(): string {
+	stringifyYAML(): string {
 		return stringifyYaml(this.data)
 	}
 }

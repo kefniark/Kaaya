@@ -1,9 +1,8 @@
 /// <reference types="jest" />
-import { KeyStore } from "../src/stores/keyStore"
 import Kaaya from "../src"
 
 test("API", () => {
-	const store = new KeyStore()
+	const store = Kaaya.createKeyStore()
 	store.createTable("user")
 
 	expect(store.has("user", "name")).toBe(false) // check property doesnt exist
@@ -15,7 +14,7 @@ test("API", () => {
 	expect(store.data.user.name).toBe("john") // check data are ok
 	expect(store.serialize.user.name).toBe("john") // check origin data are ok
 
-	const store2 = new KeyStore()
+	const store2 = Kaaya.createKeyStore()
 	const proxy = store2.instantiateProxy()
 
 	// sync data between store 1 & 2
@@ -40,12 +39,47 @@ test("API", () => {
 	expect(store.has("user", "name")).toBe(false) // check property was also deleted on store1
 })
 
+test("Kaaya Keystore JSON File", () => {
+	const jsonData = `{
+	"SectionOne": {
+		"key": "value",
+		"integer": 1234,
+		"real": 3.14,
+		"string1": "宮本武蔵",
+		"string2": "Case 2",
+		"multivalue": [
+			"first",
+			"second"
+		]
+	},
+	"SectionTwo": {
+		"key": "new value",
+		"integer": 1234
+	}
+}
+`
+	// import from ini file
+	const iniStore = Kaaya.createKeyStoreFromJSON(jsonData)
+
+	// check the contents
+	expect(iniStore.data.SectionOne.key).toBe("value")
+	expect(iniStore.data.SectionOne.string1).toBe("宮本武蔵")
+	iniStore.data.SectionOne.string1 = "東京"
+	iniStore.data.SectionThree = { string: "value" }
+	expect(iniStore.data.SectionTwo.integer).toBe(1234)
+
+	// export file to a new ini file
+	const result = iniStore.stringifyJSON()
+	expect(result).toContain("東京") // check value where properly changed
+	expect(result).toContain('"SectionThree":') // check new section are there too
+})
+
 test("Kaaya Keystore Yaml File", () => {
 	const yamlData = `
 # This is a comment too
 SectionOne:
   key: value
-  interger: 1234
+  integer: 1234
   real: 3.14
   string1: 宮本武蔵
   string2: Case 2
@@ -59,7 +93,7 @@ SectionTwo:
   integer: 1234
 `
 	// import from ini file
-	const iniStore = Kaaya.createKeyStoreFromYaml(yamlData)
+	const iniStore = Kaaya.createKeyStoreFromYAML(yamlData)
 
 	// check the contents
 	expect(iniStore.data.SectionOne.key).toBe("value")
@@ -69,7 +103,7 @@ SectionTwo:
 	expect(iniStore.data.SectionTwo.integer).toBe(1234)
 
 	// export file to a new ini file
-	const result = iniStore.stringifyYaml()
+	const result = iniStore.stringifyYAML()
 	expect(result).toContain("東京") // check value where properly changed
 	expect(result).toContain("SectionThree:") // check new section are there too
 })
@@ -94,7 +128,7 @@ key = new value
 integer = 1234
 `
 	// import from ini file
-	const iniStore = Kaaya.createKeyStoreFromIni(iniData)
+	const iniStore = Kaaya.createKeyStoreFromINI(iniData)
 
 	// check the contents
 	expect(iniStore.data.SectionOne.key).toBe("value")
@@ -104,7 +138,7 @@ integer = 1234
 	expect(iniStore.data.SectionTwo.integer).toBe(1234)
 
 	// export file to a new ini file
-	const result = iniStore.stringifyIni()
+	const result = iniStore.stringifyINI()
 	expect(result).toContain("東京") // check value where properly changed
 	expect(result).toContain("[SectionThree]") // check new section are there too
 })

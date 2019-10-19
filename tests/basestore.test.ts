@@ -1,9 +1,8 @@
 /// <reference types="jest" />
-import { BaseStore } from "../src/stores/baseStore"
 import Kaaya from "../src"
 
 test("Basic", () => {
-	const store = new BaseStore({ a: 1, b: 2 })
+	const store = Kaaya.createRawStore({ a: 1, b: 2 })
 	let evt = 0
 	store.observe((_mut: any) => evt++)
 
@@ -17,7 +16,7 @@ test("Basic", () => {
 	expect(store.serialize.c).toBe(2)
 
 	// Create a second store and sync data
-	const store2 = new BaseStore({ a: 3, b: 4 })
+	const store2 = Kaaya.createRawStore({ a: 3, b: 4 })
 	let evt2 = 0
 	store2.observe((_mut: any) => evt2++)
 
@@ -33,7 +32,7 @@ test("Basic", () => {
 })
 
 test("Proxy", () => {
-	const store = new BaseStore({ a: 1, b: 2 })
+	const store = Kaaya.createRawStore({ a: 1, b: 2 })
 	const proxy = store.instantiateProxy()
 	const proxy2 = store.instantiateProxy()
 
@@ -45,7 +44,7 @@ test("Proxy", () => {
 })
 
 test("Transaction ", () => {
-	const store = new BaseStore({ a: 1, b: 2 })
+	const store = Kaaya.createRawStore({ a: 1, b: 2 })
 
 	store.data.b = 3
 
@@ -59,7 +58,7 @@ test("Transaction ", () => {
 	expect(store.data.b).toBe(4)
 	expect(store.data.c).toBe(5)
 
-	const store2 = new BaseStore()
+	const store2 = Kaaya.createRawStore()
 	store2.sync(store.history)
 
 	expect(store2.history.length).toBe(2)
@@ -68,12 +67,12 @@ test("Transaction ", () => {
 })
 
 test("Undo Redo Set", () => {
-	const store = new BaseStore({ a: 1, b: 2 })
+	const store = Kaaya.createRawStore({ a: 1, b: 2 })
 
 	store.data.b = 3 // generate a `set` mutation
 	store.data.b = 4 // generate a `set` mutation
 
-	const store2 = new BaseStore({ a: 1, b: 2 })
+	const store2 = Kaaya.createRawStore({ a: 1, b: 2 })
 	store2.sync(store.history)
 	expect(store.history).toEqual(store2.history)
 
@@ -95,7 +94,7 @@ test("Undo Redo Set", () => {
 })
 
 test("Undo Redo Add", () => {
-	const store = new BaseStore({ a: 1, b: 2 })
+	const store = Kaaya.createRawStore({ a: 1, b: 2 })
 
 	store.data.b = 3 // generate a `set` mutation
 

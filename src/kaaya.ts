@@ -30,7 +30,7 @@ export class Kaaya {
 	 * @param {string} data
 	 * @memberof Kaaya
 	 */
-	public createKeyStoreFromIni(data: string) {
+	public createKeyStoreFromINI(data: string) {
 		return new KeyStore(parseIni(data))
 	}
 
@@ -40,7 +40,17 @@ export class Kaaya {
 	 * @param {string} data
 	 * @memberof Kaaya
 	 */
-	public createKeyStoreFromYaml(data: string) {
+	public createKeyStoreFromYAML(data: string) {
 		return new KeyStore(parseYaml(data))
+	}
+
+	/**
+	 * Create a Keystore from a configuration file (.json)
+	 *
+	 * @param {string} data
+	 * @memberof Kaaya
+	 */
+	public createKeyStoreFromJSON(data: string) {
+		return new KeyStore(JSON.parse(data))
 	}
 }

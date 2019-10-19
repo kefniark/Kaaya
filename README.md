@@ -8,10 +8,16 @@
 
 Kaaya is a delightful javascript library which target on syncing data between Applications.
 
--   Listen for object and track change (mutation)
+-   Support predefined data structure:
+    -   **Key Value**: Often used to store configuration
+    -   **Table**: Data grid like excel
+-   Listen for data and track change (mutation)
 -   Keep an history of mutation and allow to replay them on other object
 -   Allow to undo/redo modification
 -   Keep mutation as plain JS object (serializable)
+-   Provide import and export helpers for each data structure
+    -   Key Value: `.json`, `.yaml`, `.ini`
+    -   Table: `.json`, `.yaml`, `.csv`
 
 ## Usage
 
