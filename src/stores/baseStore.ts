@@ -14,8 +14,8 @@ export class BaseStore {
 	public get serialize(): any {
 		return this._originalData
 	}
-	private _store: DataStore
-	private _originalData: any
+	protected _store: DataStore
+	protected _originalData: any
 	private _data: any
 	private _updatedObj: any[]
 

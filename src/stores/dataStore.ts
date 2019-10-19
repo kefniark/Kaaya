@@ -152,6 +152,10 @@ export class DataStore {
 		return mut
 	}
 
+	registerMutation(name: string, cb: (obj: any, mut: any, forward?: boolean) => void) {
+		this.mutations[name] = cb
+	}
+
 	revertMutation(obj: any[], mut: any): void {
 		if (!this.mutations[mut.name]) throw new Error(`Unknown mutation ${mut.name}`)
 		for (const o of obj) {
