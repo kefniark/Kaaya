@@ -3,37 +3,37 @@ import { stringify as stringifyIni } from "js-ini"
 import { stringify as stringifyYaml } from "yaml"
 
 export class KeyStore extends BaseStore {
-	createTable(name: string): void {
+	createSection(name: string): void {
 		if (!name) throw new Error("wrong parameter")
-		if (this.data[name]) throw new Error("table already exist " + name)
+		if (this.data[name]) throw new Error("section already exist " + name)
 		this.data[name] = {}
 	}
 
-	has(table: string, key: string): boolean {
-		if (!table || !key) throw new Error("wrong parameter")
-		if (!this.data || !this.data[table]) return false
-		return key in this.data[table]
+	has(section: string, key: string): boolean {
+		if (!section || !key) throw new Error("wrong parameter")
+		if (!this.data || !this.data[section]) return false
+		return key in this.data[section]
 	}
 
-	get(table: string, key: string, def: string | number = ""): any {
-		if (!table || !key) throw new Error("wrong parameter")
-		if (!this.has(table, key)) return def
-		return this.data[table][key]
+	get(section: string, key: string, def: string | number = ""): any {
+		if (!section || !key) throw new Error("wrong parameter")
+		if (!this.has(section, key)) return def
+		return this.data[section][key]
 	}
 
-	set(table: string, key: string, value: string | number = ""): void {
-		if (!table || !key) throw new Error("wrong parameter")
-		if (!this.data || !this.data[table]) throw new Error("table dont exist " + table)
-		this.data[table][key] = value
+	set(section: string, key: string, value: string | number = ""): void {
+		if (!section || !key) throw new Error("wrong parameter")
+		if (!this.data || !this.data[section]) throw new Error("section dont exist " + section)
+		this.data[section][key] = value
 	}
 
-	delete(table: string, key: string): void {
-		if (!table || !key) throw new Error("wrong parameter")
-		if (!this.data || !this.data[table]) throw new Error("table dont exist " + table)
-		delete this.data[table][key]
+	delete(section: string, key: string): void {
+		if (!section || !key) throw new Error("wrong parameter")
+		if (!this.data || !this.data[section]) throw new Error("section dont exist " + section)
+		delete this.data[section][key]
 	}
 
-	deleteTable(name: string): void {
+	deleteSection(name: string): void {
 		if (!name) throw new Error("wrong parameter")
 		delete this.data[name]
 	}

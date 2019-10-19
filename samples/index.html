@@ -1,42 +1,40 @@
 <!DOCTYPE html>
 <html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Kaaya Sample !</title>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.css" />
+		<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+		<script src="./kaaya.js"></script>
 
-<head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Kaaya Sample !</title>
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.css">
-	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-	<script src='./kaaya.js'></script>
+		<style>
+			#samples {
+				border: 0px;
+				width: 100vw;
+				height: 100vh;
+			}
 
-	<style>
-		#samples {
-			border: 0px;
-			width: 100vw;
-			height: 100vh;
-		}
+			#menu {
+				position: absolute;
+				right: 20px;
+				top: 0;
+				text-align: right;
+			}
 
-		#menu {
-			position: absolute;
-			right: 20px;
-			top: 0;
-			text-align: right;
-		}
+			#menu .button {
+				margin: 5px;
+			}
+		</style>
+	</head>
 
-		#menu .button {
-			margin: 5px;
-		}
-	</style>
-</head>
+	<body>
+		<ul id="menu">
+			<li><a class="button is-link" href="./keystore.html" target="frame">KeyValue Store</a></li>
+			<li><a class="button is-link" href="./table.html" target="frame">DataTable Store</a></li>
+			<li><a class="button is-link" href="./gameobject.html" target="frame">Entity/Component</a></li>
+		</ul>
 
-<body>
-	<ul id="menu">
-		<li><a class="button is-link" href="./keystore.html" target="frame">Keystore</a></li>
-		<li><a class="button is-link" href="./table.html" target="frame">Table</a></li>
-		<li><a class="button is-link" href="./gameobject.html" target="frame">Entity/Component</a></li>
-	</ul>
-
-	<iframe id="samples" name="frame" src="./keystore.html"></iframe>
-</body>
-
+		<iframe id="samples" name="frame" src="./keystore.html"></iframe>
+	</body>
 </html>

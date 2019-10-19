@@ -3,7 +3,7 @@ import Kaaya from "../src"
 
 test("API", () => {
 	const store = Kaaya.createKeyStore()
-	store.createTable("user")
+	store.createSection("user")
 
 	expect(store.has("user", "name")).toBe(false) // check property doesnt exist
 	expect(store.get("user", "name", "bob")).toBe("bob") // check we get the default
@@ -26,7 +26,7 @@ test("API", () => {
 
 	// delete user data on store 2
 	store2.delete("user", "name")
-	store2.deleteTable("user")
+	store2.deleteSection("user")
 
 	expect(store2.has("user", "name")).toBe(false) // check property doesnt exist anymore
 	expect(store.has("user", "name")).toBe(true) // check property still exist
@@ -39,7 +39,7 @@ test("API", () => {
 	expect(store.has("user", "name")).toBe(false) // check property was also deleted on store1
 })
 
-test("Kaaya Keystore JSON File", () => {
+test("JSON File", () => {
 	const jsonData = `{
 	"SectionOne": {
 		"key": "value",
@@ -74,7 +74,7 @@ test("Kaaya Keystore JSON File", () => {
 	expect(result).toContain('"SectionThree":') // check new section are there too
 })
 
-test("Kaaya Keystore Yaml File", () => {
+test("Yaml File", () => {
 	const yamlData = `
 # This is a comment too
 SectionOne:
@@ -108,7 +108,7 @@ SectionTwo:
 	expect(result).toContain("SectionThree:") // check new section are there too
 })
 
-test("Kaaya Keystore Ini File", () => {
+test("Ini File", () => {
 	const iniData = `
 ; This is a comment too
 

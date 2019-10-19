@@ -153,9 +153,7 @@ export class DataStore {
 	}
 
 	revertMutation(obj: any[], mut: any): void {
-		if (!this.mutations[mut.name]) {
-			throw new Error(`Unknown mutation ${mut.name}`)
-		}
+		if (!this.mutations[mut.name]) throw new Error(`Unknown mutation ${mut.name}`)
 		for (const o of obj) {
 			this.mutations[mut.name](o, mut, false)
 		}
@@ -164,9 +162,7 @@ export class DataStore {
 	}
 
 	applyMutation(obj: any[], mut: any): void {
-		if (!this.mutations[mut.name]) {
-			throw new Error(`Unknown mutation ${mut.name}`)
-		}
+		if (!this.mutations[mut.name]) throw new Error(`Unknown mutation ${mut.name}`)
 		if (this.historyIds.has(mut.id)) return
 		for (const o of obj) {
 			this.mutations[mut.name](o, mut)

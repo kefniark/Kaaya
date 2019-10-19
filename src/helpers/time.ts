@@ -1,6 +1,6 @@
 export function now(): number {
 	if (typeof window !== "undefined") {
-		return performance.now()
+		return Math.round(performance.now())
 	} else {
 		return process.hrtime()[1]
 	}

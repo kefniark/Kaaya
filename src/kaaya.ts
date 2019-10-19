@@ -2,6 +2,7 @@ import { KeyStore } from "./stores/keyStore"
 import { parse as parseIni } from "js-ini"
 import { parse as parseYaml } from "yaml"
 import { BaseStore } from "./stores/baseStore"
+import { TableStore } from "./stores/tableStore"
 
 export class Kaaya {
 	/**
@@ -14,6 +15,7 @@ export class Kaaya {
 		return new BaseStore(data)
 	}
 
+	//#region Key Store
 	/**
 	 * Create a Keystore
 	 *
@@ -30,8 +32,8 @@ export class Kaaya {
 	 * @param {string} data
 	 * @memberof Kaaya
 	 */
-	public createKeyStoreFromINI(data: string) {
-		return new KeyStore(parseIni(data))
+	public createKeyStoreFromINI(data: string): KeyStore {
+		return this.createKeyStore(parseIni(data))
 	}
 
 	/**
@@ -40,8 +42,8 @@ export class Kaaya {
 	 * @param {string} data
 	 * @memberof Kaaya
 	 */
-	public createKeyStoreFromYAML(data: string) {
-		return new KeyStore(parseYaml(data))
+	public createKeyStoreFromYAML(data: string): KeyStore {
+		return this.createKeyStore(parseYaml(data))
 	}
 
 	/**
@@ -50,7 +52,22 @@ export class Kaaya {
 	 * @param {string} data
 	 * @memberof Kaaya
 	 */
-	public createKeyStoreFromJSON(data: string) {
-		return new KeyStore(JSON.parse(data))
+	public createKeyStoreFromJSON(data: string): KeyStore {
+		return this.createKeyStore(JSON.parse(data))
 	}
+	//#endregion KeyStore
+
+	//#region Table Store
+	public createTableStore(data: any = {}): TableStore {
+		return new TableStore(data)
+	}
+
+	public createTableStoreFromYAML(data: string): TableStore {
+		return this.createTableStore(parseYaml(data))
+	}
+
+	public createTableStoreFromJSON(data: string): TableStore {
+		return this.createTableStore(JSON.parse(data))
+	}
+	//#endregion Table Store
 }
