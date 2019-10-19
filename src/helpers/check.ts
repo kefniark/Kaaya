@@ -1,12 +1,12 @@
 // Returns if a value is an object
-export function isObject(value: any): boolean {
-	return value && typeof value === "object" && value.constructor === Object
-}
+// export function isObject(value: any): boolean {
+// 	return value && typeof value === "object" && value.constructor === Object
+// }
 
 // Returns if a value is an array
-export function isArray(value: any): boolean {
-	return value && typeof value === "object" && value.constructor === Array
-}
+// export function isArray(value: any): boolean {
+// 	return value && typeof value === "object" && value.constructor === Array
+// }
 
 export function pathWalk(obj: any, path: string): any {
 	let root = obj

@@ -1,4 +1,6 @@
 import { BaseStore } from "./baseStore"
+import { stringify as stringifyIni } from "js-ini"
+import { stringify as stringifyYaml } from "yaml"
 
 export class KeyStore extends BaseStore {
 	createTable(name: string): void {
@@ -34,5 +36,13 @@ export class KeyStore extends BaseStore {
 	deleteTable(name: string): void {
 		if (!name) throw new Error("wrong parameter")
 		delete this.data[name]
+	}
+
+	stringifyIni(): string {
+		return stringifyIni(this.data)
+	}
+
+	stringifyYaml(): string {
+		return stringifyYaml(this.data)
 	}
 }
