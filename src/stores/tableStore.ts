@@ -1,6 +1,6 @@
 import { BaseStore } from "./baseStore"
 import { stringify as stringifyYaml } from "yaml"
-import nanoid = require("nanoid")
+import nanoid = require("nanoid/non-secure")
 import { clone } from "../helpers/check"
 
 export interface ITableSheet {

@@ -1,7 +1,7 @@
 import { TransformComponent, Component } from "./component"
 import { EntityStore } from "../../stores"
 import { IEntityData } from "./interfaces"
-import nanoid = require("nanoid")
+import nanoid = require("nanoid/non-secure")
 
 export class Entity {
 	get enable() {

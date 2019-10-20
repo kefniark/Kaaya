@@ -1,4 +1,4 @@
-// [Kaaya]  Build: 0.0.2 - Sunday, October 20th, 2019, 10:18:50 PM  
+// [Kaaya]  Build: 0.0.3 - Sunday, October 20th, 2019, 10:40:52 PM  
  (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -2883,43 +2883,35 @@ exports.encode = stringify;
 
 /***/ }),
 
-/***/ "./node_modules/nanoid/index.browser.js":
-/*!**********************************************!*\
-  !*** ./node_modules/nanoid/index.browser.js ***!
-  \**********************************************/
+/***/ "./node_modules/nanoid/non-secure/index.js":
+/*!*************************************************!*\
+  !*** ./node_modules/nanoid/non-secure/index.js ***!
+  \*************************************************/
 /*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, exports) {
 
-if (true) {
-  if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
-    throw new Error(
-      'React Native does not have a built-in secure random generator. ' +
-      'If you don’t need unpredictable IDs, you can use `nanoid/non-secure`. ' +
-      'For secure ID install `expo-random` locally and use `nanoid/async`.'
-    )
-  }
-  if (typeof self === 'undefined' || (!self.crypto && !self.msCrypto)) {
-    throw new Error(
-      'Your browser does not have secure random generator. ' +
-      'If you don’t need unpredictable IDs, you can use nanoid/non-secure.'
-    )
-  }
-}
+var url = 'bjectSymhasOwnProp-0123456789ABCDEFGHIJKLMNQRTUVWXYZ_dfgiklquvxz'
 
-var crypto = self.crypto || self.msCrypto
-
-/*
- * This alphabet uses a-z A-Z 0-9 _- symbols.
- * Symbols order was changed for better gzip compression.
+/**
+ * Generate URL-friendly unique ID. This method use non-secure predictable
+ * random generator with bigger collision probability.
+ *
+ * @param {number} [size=21] The number of symbols in ID.
+ *
+ * @return {string} Random string.
+ *
+ * @example
+ * const nanoid = require('nanoid/non-secure')
+ * model.id = nanoid() //=> "Uakgb_J5m9g-0JDMbcJqL"
+ *
+ * @name nonSecure
+ * @function
  */
-var url = 'Uint8ArdomValuesObj012345679BCDEFGHIJKLMNPQRSTWXYZ_cfghkpqvwxyz-'
-
 module.exports = function (size) {
   size = size || 21
   var id = ''
-  var bytes = crypto.getRandomValues(new Uint8Array(size))
   while (size--) {
-    id += url[bytes[size] & 63]
+    id += url[Math.random() * 64 | 0]
   }
   return id
 }
@@ -14053,7 +14045,7 @@ module.exports = __webpack_require__(/*! ./dist */ "./node_modules/yaml/browser/
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const nanoid = __webpack_require__(/*! nanoid */ "./node_modules/nanoid/index.browser.js");
+const nanoid = __webpack_require__(/*! nanoid/non-secure */ "./node_modules/nanoid/non-secure/index.js");
 class Component {
     constructor(store, data) {
         this.dataDefault = {
@@ -14139,7 +14131,7 @@ exports.TransformComponent = TransformComponent;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const nanoid = __webpack_require__(/*! nanoid */ "./node_modules/nanoid/index.browser.js");
+const nanoid = __webpack_require__(/*! nanoid/non-secure */ "./node_modules/nanoid/non-secure/index.js");
 class Entity {
     constructor(store, data) {
         this.dataDefault = {
@@ -14497,7 +14489,7 @@ exports.BaseStore = BaseStore;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const nanoid = __webpack_require__(/*! nanoid */ "./node_modules/nanoid/index.browser.js");
+const nanoid = __webpack_require__(/*! nanoid/non-secure */ "./node_modules/nanoid/non-secure/index.js");
 const time_1 = __webpack_require__(/*! ../helpers/time */ "./src/helpers/time.ts");
 const check_1 = __webpack_require__(/*! ../helpers/check */ "./src/helpers/check.ts");
 const ts_events_1 = __webpack_require__(/*! ts-events */ "./node_modules/ts-events/dist/lib/index.js");
@@ -14685,7 +14677,7 @@ exports.DataStore = DataStore;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const baseStore_1 = __webpack_require__(/*! ./baseStore */ "./src/stores/baseStore.ts");
-const nanoid = __webpack_require__(/*! nanoid */ "./node_modules/nanoid/index.browser.js");
+const nanoid = __webpack_require__(/*! nanoid/non-secure */ "./node_modules/nanoid/non-secure/index.js");
 const check_1 = __webpack_require__(/*! ../helpers/check */ "./src/helpers/check.ts");
 class EntityStore extends baseStore_1.BaseStore {
     constructor(data = {}) {
@@ -14848,7 +14840,7 @@ exports.KeyStore = KeyStore;
 Object.defineProperty(exports, "__esModule", { value: true });
 const baseStore_1 = __webpack_require__(/*! ./baseStore */ "./src/stores/baseStore.ts");
 const yaml_1 = __webpack_require__(/*! yaml */ "./node_modules/yaml/browser/index.js");
-const nanoid = __webpack_require__(/*! nanoid */ "./node_modules/nanoid/index.browser.js");
+const nanoid = __webpack_require__(/*! nanoid/non-secure */ "./node_modules/nanoid/non-secure/index.js");
 const check_1 = __webpack_require__(/*! ../helpers/check */ "./src/helpers/check.ts");
 class TableStore extends baseStore_1.BaseStore {
     constructor(entries = {}) {

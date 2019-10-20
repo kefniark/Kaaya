@@ -1,5 +1,5 @@
 import { BaseStore } from "./baseStore"
-import nanoid = require("nanoid")
+import nanoid = require("nanoid/non-secure")
 import { clone } from "../helpers/check"
 
 export class EntityStore extends BaseStore {

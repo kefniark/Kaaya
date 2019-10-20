@@ -1,4 +1,4 @@
-import nanoid = require("nanoid")
+import nanoid = require("nanoid/non-secure")
 import { now } from "../helpers/time"
 import { pathWalk } from "../helpers/check"
 import { SyncEvent } from "ts-events"

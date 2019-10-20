@@ -1,7 +1,7 @@
 import { Vector3, ITransformComponentData, IComponentData } from "./interfaces"
 import { Entity } from "./entity"
 import { EntityStore } from "../../stores"
-import nanoid = require("nanoid")
+import nanoid = require("nanoid/non-secure")
 
 export class Component {
 	get id() {
