@@ -21,6 +21,8 @@ Kaaya is a delightful javascript library which target on state management and da
 -   Allow to undo/redo modification
 -   Keep mutation as plain JS object (serializable)
 
+---
+
 ## Usage
 
 ### Basic Store Creation
@@ -74,7 +76,36 @@ client2.data // { a: 5, b: 8 } not sync yet
 
 And more ....
 
-## Limitation
+---
+
+## Development
+
+### Getting Started
+
+If you want to take a look at the code or help, it's quite easy to get started
+
+```sh
+npm install
+npm run dev
+```
+
+This will start a server on http://localhost:8080/ where you can test few samples with the current version
+
+### Tests
+
+When you are done with your change, just make sure to run tests `npm run test`
+
+### Build
+
+To make a build (generated in `build/`)
+
+```sh
+npm run build
+```
+
+---
+
+## Known Limitation
 
 -   Some array function like `.push` or `.slice` cause the whole object to be mutated and not just the value being changed
 -   Doesnt handle advance object like `Set` or `Map`
