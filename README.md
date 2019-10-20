@@ -1,4 +1,4 @@
-    Still under development, dont use except for testing.
+    Still under development, do not use except for testing :P
 
 # Kaaya
 
