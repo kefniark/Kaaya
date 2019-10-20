@@ -3,7 +3,7 @@ import Kaaya from "../src"
 import { Entity } from "../src/customStore/entityComponent"
 
 test("API", () => {
-	var store1 = Kaaya.createEntityComponentStore()
+	const store1 = Kaaya.createEntityComponentStore()
 	store1.create("Entity", { id: "root", name: "Root" })
 	store1.create("Entity", { id: "game", name: "Game", parentId: "root" })
 	store1.create("Entity", { id: "canvas", name: "Canvas", parentId: "root" })
@@ -16,12 +16,12 @@ test("API", () => {
 	store1.create("Entity", { id: "game_object2", parentId: "game_object", name: "Game Object 2" })
 	store1.create("Transform", { id: "game_object_transform2", parentId: "game_object2" })
 
-	var entity = store1.getEntity<Entity>("game_object")
+	const entity = store1.getEntity<Entity>("game_object")
 	entity.enable = false
 	entity.transform.position.x = 5
 
-	var subEntity = store1.getEntity<Entity>("game_object2")
-	var component = store1.getEntity<Entity>("game_object_transform2")
+	const subEntity = store1.getEntity<Entity>("game_object2")
+	const component = store1.getEntity<Entity>("game_object_transform2")
 
 	// check component
 	expect(component.id).toBe("game_object_transform2")
@@ -49,10 +49,10 @@ test("API", () => {
 	// delete entity
 	store1.delete("game_object2")
 
-	var store2 = Kaaya.createEntityComponentStore()
+	const store2 = Kaaya.createEntityComponentStore()
 
-	var store1Proxy = store1.instantiateProxy()
-	var store2Proxy = store2.instantiateProxy()
+	const store1Proxy = store1.instantiateProxy()
+	const store2Proxy = store2.instantiateProxy()
 
 	// console.log(store1.history)
 	store2.sync(store1.history)

@@ -29,7 +29,7 @@ Kaaya is a delightful javascript library which target on state management and da
 import kaaya from "kaaya"
 
 // create a new store with custom data
-var store = kaaya.createKeyStore({ a: 1, b: 2 })
+const store = kaaya.createKeyStore({ a: 1, b: 2 })
 store.data.a = 5
 store.data.a = 10
 // so far everything looks normal: { a: 10, b: 2 }
@@ -56,11 +56,11 @@ store.data // { a: 5, b: 2 }
 
 ```ts
 // create other store and sync them with our first one data
-var client1 = kaaya.createKeyStore({ a: 0, b: 6 })
+const client1 = kaaya.createKeyStore({ a: 0, b: 6 })
 client1.sync(store.history)
 client1.data // <= { a: 5, b: 6 }
 
-var client2 = kaaya.createKeyStore({ a: 0, b: 8 })
+const client2 = kaaya.createKeyStore({ a: 0, b: 8 })
 client2.sync(store.history)
 client2.data // <= { a: 5, b: 8 }
 

@@ -2,13 +2,13 @@
 import Kaaya from "../src"
 
 test("API", () => {
-	var store = Kaaya.createTableStore()
+	const store = Kaaya.createTableStore()
 
 	store.createSheet("people")
 	store.addRow("people", { id: "A", name: "john", age: 12, mail: "john@gmail.com" })
 	store.addRow("people", { id: "B", name: "bob", age: 14, mail: "bob@gmail.com" })
 
-	var row = store.getRowById("people", "A")
+	const row = store.getRowById("people", "A")
 	expect(row.name).toBe("john")
 	expect(row.age).toBe(12)
 
@@ -19,20 +19,20 @@ test("API", () => {
 	store.addRow("monster", { id: "asbv", name: "johnMob", atk: 12, def: 2 })
 	store.addRow("monster", { id: "sdfg", name: "bobMob", atk: 14, def: 8 })
 
-	var rowBob = store.getRowById("monster", "sdfg")
+	const rowBob = store.getRowById("monster", "sdfg")
 	expect(rowBob.name).toBe("bobMob")
 
-	var rowMonsters = store.getRows("monster").filter((x: any) => x.atk > 10)
+	const rowMonsters = store.getRows("monster").filter((x: any) => x.atk > 10)
 	expect(rowMonsters.length).toBe(2)
 
 	store.setRow("monster", "sdfg", { name: "tunaMob", atk: 8, def: 8 })
 
-	var store2 = Kaaya.createTableStore()
+	const store2 = Kaaya.createTableStore()
 	store2.sync(store.history)
 
 	store2.deleteRow("people", "B")
-	var row = store2.getRowById("people", "B")
-	expect(row).toBe(undefined)
+	const row2 = store2.getRowById("people", "B")
+	expect(row2).toBe(undefined)
 
 	store2.deleteSheet("people")
 })

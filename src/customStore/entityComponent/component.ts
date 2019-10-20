@@ -35,7 +35,7 @@ export class Component {
 	}
 
 	created() {
-		var parent = this.store.getData(this.data.parentId)
+		const parent = this.store.getData(this.data.parentId)
 		if (!parent) return
 		if (this.data.type in parent.componentIds) return
 		if (!this.store.created.has(this.id)) return
@@ -43,7 +43,7 @@ export class Component {
 	}
 
 	deleted() {
-		var parent = this.store.getData(this.data.parentId)
+		const parent = this.store.getData(this.data.parentId)
 		if (!parent || !parent.componentIds) return
 		delete parent.componentIds[this.data.type]
 	}

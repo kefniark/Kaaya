@@ -11,7 +11,7 @@ export class EntityStore extends BaseStore {
 		super(data)
 
 		this._store.registerMutation("create", (obj, mut, _forward) => {
-			var instance: any = undefined
+			let instance: any = undefined
 
 			// only instantiate object on real not proxy
 			if (obj === this._originalData) {
@@ -36,7 +36,7 @@ export class EntityStore extends BaseStore {
 	create(classname: string, data: any = {}) {
 		if (!this.factory.has(classname)) throw new Error("unknown")
 
-		var id = data.id ? data.id : nanoid(6)
+		const id = data.id ? data.id : nanoid(6)
 		data.id = id
 		this.created.add(id)
 		this._store.createMutation("create", id, { classname, ...data })
@@ -44,7 +44,7 @@ export class EntityStore extends BaseStore {
 
 	delete(id: string) {
 		if (!this.data[id]) return
-		var entity = this.getEntity<any>(id)
+		const entity = this.getEntity<any>(id)
 		if (entity && entity.deleted) entity.deleted()
 		delete this.data[id]
 	}
@@ -54,7 +54,7 @@ export class EntityStore extends BaseStore {
 	}
 
 	getEntity<T>(id: string): T {
-		var originalData = this.getData(id, false)
+		const originalData = this.getData(id, false)
 		return this.instances.get(originalData) as T
 	}
 }

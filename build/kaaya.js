@@ -1,4 +1,4 @@
-// [Kaaya]  Build: 0.0.2 - Sunday, October 20th, 2019, 10:07:45 PM  
+// [Kaaya]  Build: 0.0.2 - Sunday, October 20th, 2019, 10:18:50 PM  
  (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -14081,7 +14081,7 @@ class Component {
         return this.store.getData(this.data.id);
     }
     created() {
-        var parent = this.store.getData(this.data.parentId);
+        const parent = this.store.getData(this.data.parentId);
         if (!parent)
             return;
         if (this.data.type in parent.componentIds)
@@ -14091,7 +14091,7 @@ class Component {
         parent.componentIds[this.data.type] = this.data.id;
     }
     deleted() {
-        var parent = this.store.getData(this.data.parentId);
+        const parent = this.store.getData(this.data.parentId);
         if (!parent || !parent.componentIds)
             return;
         delete parent.componentIds[this.data.type];
@@ -14187,7 +14187,7 @@ class Entity {
         return this.store.getData(this.data.id);
     }
     created() {
-        var parent = this.store.getData(this.data.parentId);
+        const parent = this.store.getData(this.data.parentId);
         if (!parent)
             return;
         if (parent.childIds.indexOf((x) => x === this.data.id) !== -1)
@@ -14197,14 +14197,14 @@ class Entity {
         parent.childIds.push(this.data.id);
     }
     deleted() {
-        var parent = this.store.getData(this.data.parentId);
+        const parent = this.store.getData(this.data.parentId);
         if (!parent || !parent.childIds)
             return;
         parent.childIds = parent.childIds.filter((x) => x !== this.id);
-        for (var componentId of Object.values(this.data.componentIds)) {
+        for (const componentId of Object.values(this.data.componentIds)) {
             this.store.delete(componentId);
         }
-        for (var childId of this.data.childIds) {
+        for (const childId of this.data.childIds) {
             this.store.delete(childId);
         }
     }
@@ -14213,10 +14213,10 @@ exports.Entity = Entity;
 // export function walkEntity(entity: Entity, cb: (entity: Entity | Component, depth: number) => void, depth: number = 0) {
 // 	if (!entity) return
 // 	cb(entity, depth)
-// 	for (var comp of entity.components) {
+// 	for (const comp of entity.components) {
 // 		cb(comp, depth + 1)
 // 	}
-// 	for (var child of entity.childs) {
+// 	for (const child of entity.childs) {
 // 		walkEntity(child, cb, depth + 1)
 // 	}
 // }
@@ -14396,7 +14396,7 @@ class Kaaya {
         return new stores_1.EntityStore(data);
     }
     createEntityComponentStore(data = {}) {
-        var store = new stores_1.EntityStore(data);
+        const store = this.createEntityStore(data);
         store.register("Entity", (store, data) => new entityComponent_1.Entity(store, data));
         store.register("Transform", (store, data) => new entityComponent_1.TransformComponent(store, data));
         return store;
@@ -14694,7 +14694,7 @@ class EntityStore extends baseStore_1.BaseStore {
         this.instances = new WeakMap();
         this.created = new Set();
         this._store.registerMutation("create", (obj, mut, _forward) => {
-            var instance = undefined;
+            let instance = undefined;
             // only instantiate object on real not proxy
             if (obj === this._originalData) {
                 const init = this.factory.get(mut.data.classname);
@@ -14719,7 +14719,7 @@ class EntityStore extends baseStore_1.BaseStore {
     create(classname, data = {}) {
         if (!this.factory.has(classname))
             throw new Error("unknown");
-        var id = data.id ? data.id : nanoid(6);
+        const id = data.id ? data.id : nanoid(6);
         data.id = id;
         this.created.add(id);
         this._store.createMutation("create", id, Object.assign({ classname }, data));
@@ -14727,7 +14727,7 @@ class EntityStore extends baseStore_1.BaseStore {
     delete(id) {
         if (!this.data[id])
             return;
-        var entity = this.getEntity(id);
+        const entity = this.getEntity(id);
         if (entity && entity.deleted)
             entity.deleted();
         delete this.data[id];
@@ -14736,7 +14736,7 @@ class EntityStore extends baseStore_1.BaseStore {
         return event ? this.data[id] : this._originalData[id];
     }
     getEntity(id) {
-        var originalData = this.getData(id, false);
+        const originalData = this.getData(id, false);
         return this.instances.get(originalData);
     }
 }

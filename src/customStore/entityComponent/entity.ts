@@ -55,7 +55,7 @@ export class Entity {
 	}
 
 	created() {
-		var parent = this.store.getData(this.data.parentId)
+		const parent = this.store.getData(this.data.parentId)
 		if (!parent) return
 		if (parent.childIds.indexOf((x: string) => x === this.data.id) !== -1) return
 		if (!this.store.created.has(this.id)) return
@@ -63,13 +63,13 @@ export class Entity {
 	}
 
 	deleted() {
-		var parent = this.store.getData(this.data.parentId)
+		const parent = this.store.getData(this.data.parentId)
 		if (!parent || !parent.childIds) return
 		parent.childIds = parent.childIds.filter((x: string) => x !== this.id)
-		for (var componentId of Object.values(this.data.componentIds)) {
+		for (const componentId of Object.values(this.data.componentIds)) {
 			this.store.delete(componentId)
 		}
-		for (var childId of this.data.childIds) {
+		for (const childId of this.data.childIds) {
 			this.store.delete(childId)
 		}
 	}
@@ -78,10 +78,10 @@ export class Entity {
 // export function walkEntity(entity: Entity, cb: (entity: Entity | Component, depth: number) => void, depth: number = 0) {
 // 	if (!entity) return
 // 	cb(entity, depth)
-// 	for (var comp of entity.components) {
+// 	for (const comp of entity.components) {
 // 		cb(comp, depth + 1)
 // 	}
-// 	for (var child of entity.childs) {
+// 	for (const child of entity.childs) {
 // 		walkEntity(child, cb, depth + 1)
 // 	}
 // }

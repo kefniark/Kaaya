@@ -75,7 +75,7 @@ export class Kaaya {
 	}
 
 	public createEntityComponentStore(data: any = {}): EntityStore {
-		var store = new EntityStore(data)
+		const store = this.createEntityStore(data)
 		store.register("Entity", (store, data) => new Entity(store, data))
 		store.register("Transform", (store, data) => new TransformComponent(store, data))
 		return store
