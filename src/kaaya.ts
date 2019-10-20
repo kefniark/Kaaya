@@ -1,8 +1,7 @@
-import { KeyStore } from "./stores/keyStore"
 import { parse as parseIni } from "js-ini"
 import { parse as parseYaml } from "yaml"
-import { BaseStore } from "./stores/baseStore"
-import { TableStore } from "./stores/tableStore"
+import { Entity, TransformComponent } from "./customStore/entityComponent"
+import { BaseStore, KeyStore, TableStore, EntityStore } from "./stores"
 
 export class Kaaya {
 	/**
@@ -70,4 +69,15 @@ export class Kaaya {
 		return this.createTableStore(JSON.parse(data))
 	}
 	//#endregion Table Store
+
+	public createEntityStore(data: any = {}): EntityStore {
+		return new EntityStore(data)
+	}
+
+	public createEntityComponentStore(data: any = {}): EntityStore {
+		var store = new EntityStore(data)
+		store.register("Entity", (store, data) => new Entity(store, data))
+		store.register("Transform", (store, data) => new TransformComponent(store, data))
+		return store
+	}
 }

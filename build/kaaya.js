@@ -1,4 +1,4 @@
-// [Kaaya]  Build: 0.0.1 - Saturday, October 19th, 2019, 10:01:10 PM  
+// [Kaaya]  Build: 0.0.2 - Sunday, October 20th, 2019, 10:07:45 PM  
  (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -14043,6 +14043,206 @@ module.exports = __webpack_require__(/*! ./dist */ "./node_modules/yaml/browser/
 
 /***/ }),
 
+/***/ "./src/customStore/entityComponent/component.ts":
+/*!******************************************************!*\
+  !*** ./src/customStore/entityComponent/component.ts ***!
+  \******************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const nanoid = __webpack_require__(/*! nanoid */ "./node_modules/nanoid/index.browser.js");
+class Component {
+    constructor(store, data) {
+        this.dataDefault = {
+            id: nanoid(),
+            parentId: "",
+            type: "",
+            enable: true
+        };
+        this.store = store;
+        this.data = Object.assign({}, this.dataDefault, data);
+    }
+    get id() {
+        return this.data.id;
+    }
+    get name() {
+        return this.data.type;
+    }
+    get gameobject() {
+        return this.store.getEntity(this.data.parentId);
+    }
+    get transform() {
+        return this.gameobject.transform;
+    }
+    get watchedData() {
+        return this.store.getData(this.data.id);
+    }
+    created() {
+        var parent = this.store.getData(this.data.parentId);
+        if (!parent)
+            return;
+        if (this.data.type in parent.componentIds)
+            return;
+        if (!this.store.created.has(this.id))
+            return;
+        parent.componentIds[this.data.type] = this.data.id;
+    }
+    deleted() {
+        var parent = this.store.getData(this.data.parentId);
+        if (!parent || !parent.componentIds)
+            return;
+        delete parent.componentIds[this.data.type];
+    }
+    mounted() { }
+    unmounted() { }
+    enabled() { }
+    disabled() { }
+}
+exports.Component = Component;
+class TransformComponent extends Component {
+    constructor(store, data) {
+        if (!data.type)
+            data.type = "Transform";
+        super(store, data);
+        if (!this.data.position)
+            this.data.position = { x: 0, y: 0, z: 0 };
+        if (!this.data.rotation)
+            this.data.rotation = { x: 0, y: 0, z: 0 };
+        if (!this.data.scale)
+            this.data.scale = { x: 1, y: 1, z: 1 };
+    }
+    get position() {
+        return this.watchedData.position;
+    }
+    get rotation() {
+        return this.watchedData.rotation;
+    }
+    get scale() {
+        return this.watchedData.scale;
+    }
+}
+exports.TransformComponent = TransformComponent;
+
+
+/***/ }),
+
+/***/ "./src/customStore/entityComponent/entity.ts":
+/*!***************************************************!*\
+  !*** ./src/customStore/entityComponent/entity.ts ***!
+  \***************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const nanoid = __webpack_require__(/*! nanoid */ "./node_modules/nanoid/index.browser.js");
+class Entity {
+    constructor(store, data) {
+        this.dataDefault = {
+            id: nanoid(),
+            name: "entity",
+            parentId: "",
+            childIds: [],
+            componentIds: {},
+            enable: true
+        };
+        this.store = store;
+        this.data = Object.assign({}, this.dataDefault, data);
+    }
+    get enable() {
+        return this.data.enable;
+    }
+    set enable(value) {
+        this.watchedData.enable = value;
+    }
+    get id() {
+        return this.data.id;
+    }
+    get name() {
+        return this.data.name;
+    }
+    set name(value) {
+        this.watchedData.name = value;
+    }
+    get gameobject() {
+        return this.store.getEntity(this.data.id);
+    }
+    get transform() {
+        return this.store.getEntity(this.data.componentIds["Transform"]);
+    }
+    get parent() {
+        return this.store.getEntity(this.data.parentId);
+    }
+    get components() {
+        return Object.values(this.data.componentIds).map(x => this.store.getEntity(x));
+    }
+    get childs() {
+        return this.data.childIds.map(x => this.store.getEntity(x));
+    }
+    get watchedData() {
+        return this.store.getData(this.data.id);
+    }
+    created() {
+        var parent = this.store.getData(this.data.parentId);
+        if (!parent)
+            return;
+        if (parent.childIds.indexOf((x) => x === this.data.id) !== -1)
+            return;
+        if (!this.store.created.has(this.id))
+            return;
+        parent.childIds.push(this.data.id);
+    }
+    deleted() {
+        var parent = this.store.getData(this.data.parentId);
+        if (!parent || !parent.childIds)
+            return;
+        parent.childIds = parent.childIds.filter((x) => x !== this.id);
+        for (var componentId of Object.values(this.data.componentIds)) {
+            this.store.delete(componentId);
+        }
+        for (var childId of this.data.childIds) {
+            this.store.delete(childId);
+        }
+    }
+}
+exports.Entity = Entity;
+// export function walkEntity(entity: Entity, cb: (entity: Entity | Component, depth: number) => void, depth: number = 0) {
+// 	if (!entity) return
+// 	cb(entity, depth)
+// 	for (var comp of entity.components) {
+// 		cb(comp, depth + 1)
+// 	}
+// 	for (var child of entity.childs) {
+// 		walkEntity(child, cb, depth + 1)
+// 	}
+// }
+
+
+/***/ }),
+
+/***/ "./src/customStore/entityComponent/index.ts":
+/*!**************************************************!*\
+  !*** ./src/customStore/entityComponent/index.ts ***!
+  \**************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
+Object.defineProperty(exports, "__esModule", { value: true });
+__export(__webpack_require__(/*! ./entity */ "./src/customStore/entityComponent/entity.ts"));
+__export(__webpack_require__(/*! ./component */ "./src/customStore/entityComponent/component.ts"));
+
+
+/***/ }),
+
 /***/ "./src/helpers/check.ts":
 /*!******************************!*\
   !*** ./src/helpers/check.ts ***!
@@ -14052,15 +14252,7 @@ module.exports = __webpack_require__(/*! ./dist */ "./node_modules/yaml/browser/
 
 "use strict";
 
-// Returns if a value is an object
-// export function isObject(value: any): boolean {
-// 	return value && typeof value === "object" && value.constructor === Object
-// }
 Object.defineProperty(exports, "__esModule", { value: true });
-// Returns if a value is an array
-// export function isArray(value: any): boolean {
-// 	return value && typeof value === "object" && value.constructor === Array
-// }
 function pathWalk(obj, path) {
     let root = obj;
     let index;
@@ -14071,6 +14263,8 @@ function pathWalk(obj, path) {
             return { root, property: path };
         }
         prop = path.slice(0, index);
+        if (!root[prop])
+            break;
         root = root[prop];
         path = path.slice(index + 1);
     }
@@ -14135,11 +14329,10 @@ exports.default = new kaaya_1.Kaaya();
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const keyStore_1 = __webpack_require__(/*! ./stores/keyStore */ "./src/stores/keyStore.ts");
 const js_ini_1 = __webpack_require__(/*! js-ini */ "./node_modules/js-ini/lib/index.js");
 const yaml_1 = __webpack_require__(/*! yaml */ "./node_modules/yaml/browser/index.js");
-const baseStore_1 = __webpack_require__(/*! ./stores/baseStore */ "./src/stores/baseStore.ts");
-const tableStore_1 = __webpack_require__(/*! ./stores/tableStore */ "./src/stores/tableStore.ts");
+const entityComponent_1 = __webpack_require__(/*! ./customStore/entityComponent */ "./src/customStore/entityComponent/index.ts");
+const stores_1 = __webpack_require__(/*! ./stores */ "./src/stores/index.ts");
 class Kaaya {
     /**
      * Create a Base Store (basic store without helpers or predefined structure)
@@ -14148,7 +14341,7 @@ class Kaaya {
      * @returns {BaseStore}
      */
     createRawStore(data = {}) {
-        return new baseStore_1.BaseStore(data);
+        return new stores_1.BaseStore(data);
     }
     //#region Key Store
     /**
@@ -14158,7 +14351,7 @@ class Kaaya {
      * @returns {KeyStore}
      */
     createKeyStore(data = {}) {
-        return new keyStore_1.KeyStore(data);
+        return new stores_1.KeyStore(data);
     }
     /**
      * Create a Keystore from a configuration file (.ini)
@@ -14190,13 +14383,23 @@ class Kaaya {
     //#endregion KeyStore
     //#region Table Store
     createTableStore(data = {}) {
-        return new tableStore_1.TableStore(data);
+        return new stores_1.TableStore(data);
     }
     createTableStoreFromYAML(data) {
         return this.createTableStore(yaml_1.parse(data));
     }
     createTableStoreFromJSON(data) {
         return this.createTableStore(JSON.parse(data));
+    }
+    //#endregion Table Store
+    createEntityStore(data = {}) {
+        return new stores_1.EntityStore(data);
+    }
+    createEntityComponentStore(data = {}) {
+        var store = new stores_1.EntityStore(data);
+        store.register("Entity", (store, data) => new entityComponent_1.Entity(store, data));
+        store.register("Transform", (store, data) => new entityComponent_1.TransformComponent(store, data));
+        return store;
     }
 }
 exports.Kaaya = Kaaya;
@@ -14338,7 +14541,7 @@ class DataStore {
         this.mutations.delete = (obj, mut, forward = true) => {
             const { root, property } = check_1.pathWalk(obj, mut.path);
             if (forward) {
-                if (root[property]) {
+                if (root && root[property]) {
                     this.keepUndoObject(mut.id, root[property]);
                     delete root[property];
                 }
@@ -14434,6 +14637,9 @@ class DataStore {
         this.evtCreate.post(mut);
         return mut;
     }
+    registerMutation(name, cb) {
+        this.mutations[name] = cb;
+    }
     revertMutation(obj, mut) {
         if (!this.mutations[mut.name])
             throw new Error(`Unknown mutation ${mut.name}`);
@@ -14464,6 +14670,99 @@ class DataStore {
     }
 }
 exports.DataStore = DataStore;
+
+
+/***/ }),
+
+/***/ "./src/stores/entityStore.ts":
+/*!***********************************!*\
+  !*** ./src/stores/entityStore.ts ***!
+  \***********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const baseStore_1 = __webpack_require__(/*! ./baseStore */ "./src/stores/baseStore.ts");
+const nanoid = __webpack_require__(/*! nanoid */ "./node_modules/nanoid/index.browser.js");
+const check_1 = __webpack_require__(/*! ../helpers/check */ "./src/helpers/check.ts");
+class EntityStore extends baseStore_1.BaseStore {
+    constructor(data = {}) {
+        super(data);
+        this.factory = new Map();
+        this.instances = new WeakMap();
+        this.created = new Set();
+        this._store.registerMutation("create", (obj, mut, _forward) => {
+            var instance = undefined;
+            // only instantiate object on real not proxy
+            if (obj === this._originalData) {
+                const init = this.factory.get(mut.data.classname);
+                if (!init)
+                    throw new Error("Cant find factory method for " + mut.data.classname);
+                instance = init(this, mut.data);
+                this._originalData[mut.path] = instance.data;
+                this.instances.set(instance.data, instance);
+            }
+            else {
+                obj[mut.path] = check_1.clone(this.data[mut.path]);
+            }
+            this._store.addHistory(mut);
+            this._store.historyIds.add(mut.id);
+            if (instance && instance.created)
+                instance.created();
+        });
+    }
+    register(name, factory) {
+        this.factory.set(name, factory);
+    }
+    create(classname, data = {}) {
+        if (!this.factory.has(classname))
+            throw new Error("unknown");
+        var id = data.id ? data.id : nanoid(6);
+        data.id = id;
+        this.created.add(id);
+        this._store.createMutation("create", id, Object.assign({ classname }, data));
+    }
+    delete(id) {
+        if (!this.data[id])
+            return;
+        var entity = this.getEntity(id);
+        if (entity && entity.deleted)
+            entity.deleted();
+        delete this.data[id];
+    }
+    getData(id, event = true) {
+        return event ? this.data[id] : this._originalData[id];
+    }
+    getEntity(id) {
+        var originalData = this.getData(id, false);
+        return this.instances.get(originalData);
+    }
+}
+exports.EntityStore = EntityStore;
+
+
+/***/ }),
+
+/***/ "./src/stores/index.ts":
+/*!*****************************!*\
+  !*** ./src/stores/index.ts ***!
+  \*****************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
+Object.defineProperty(exports, "__esModule", { value: true });
+__export(__webpack_require__(/*! ./baseStore */ "./src/stores/baseStore.ts"));
+__export(__webpack_require__(/*! ./dataStore */ "./src/stores/dataStore.ts"));
+__export(__webpack_require__(/*! ./entityStore */ "./src/stores/entityStore.ts"));
+__export(__webpack_require__(/*! ./keyStore */ "./src/stores/keyStore.ts"));
+__export(__webpack_require__(/*! ./tableStore */ "./src/stores/tableStore.ts"));
 
 
 /***/ }),

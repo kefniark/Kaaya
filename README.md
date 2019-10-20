@@ -14,6 +14,7 @@ Kaaya is a delightful javascript library which target on state management and da
 -   Support different data structure (and their usual format):
     -   **Key Value**: Often used to store configuration (`.ini`, `.yaml`, `.json`)
     -   **Table**: Data grid like excel (`.csv`, `.yaml`, `.json`)
+    -   **Entities**: List of instantiated object
     -   or plain JS object to store your own data
 -   Watch for data modification (mutation)
 -   Keep an history of mutation and allow to replay them on other object
@@ -72,3 +73,9 @@ client2.data // { a: 5, b: 8 } not sync yet
 ```
 
 And more ....
+
+## Limitation
+
+-   Some array function like `.push` or `.slice` cause the whole object to be mutated and not just the value being changed
+-   Doesnt handle advance object like `Set` or `Map`
+-   Some library like `Vue` are adding lot of metadata on objects, causing false mutation and conflict. For those librarie, it's recommended to use `store.instantiateProxy()` and not `store.data`

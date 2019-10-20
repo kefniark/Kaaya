@@ -10,7 +10,7 @@ export class DataStore {
 	public id: string
 	private mutations: { [id: string]: (obj: any, mut: any, forward?: boolean) => void } = {}
 	private history: any[]
-	private historyIds: Set<string>
+	public historyIds: Set<string>
 
 	// transaction
 	private transactionMeta: any = undefined
@@ -65,7 +65,7 @@ export class DataStore {
 		this.mutations.delete = (obj: any, mut: any, forward = true): void => {
 			const { root, property } = pathWalk(obj, mut.path)
 			if (forward) {
-				if (root[property]) {
+				if (root && root[property]) {
 					this.keepUndoObject(mut.id, root[property])
 					delete root[property]
 				}

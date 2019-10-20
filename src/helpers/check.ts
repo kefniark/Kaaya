@@ -8,6 +8,7 @@ export function pathWalk(obj: any, path: string): any {
 			return { root, property: path }
 		}
 		prop = path.slice(0, index)
+		if (!root[prop]) break
 		root = root[prop]
 		path = path.slice(index + 1)
 	}
