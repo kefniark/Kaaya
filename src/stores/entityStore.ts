@@ -1,6 +1,5 @@
 import { BaseStore } from "./baseStore"
 import nanoid = require("nanoid/non-secure")
-import { clone } from "../helpers/check"
 
 export class EntityStore extends BaseStore {
 	factory = new Map<string, (store: EntityStore, data: any) => any>()
@@ -14,15 +13,12 @@ export class EntityStore extends BaseStore {
 			let instance: any = undefined
 
 			// only instantiate object on real not proxy
-			if (obj === this._originalData) {
-				const init = this.factory.get(mut.data.classname)
-				if (!init) throw new Error("Cant find factory method for " + mut.data.classname)
-				instance = init(this, mut.data)
-				this._originalData[mut.path] = instance.data
-				this.instances.set(instance.data, instance)
-			} else {
-				obj[mut.path] = clone(this.data[mut.path])
-			}
+			const init = this.factory.get(mut.data.classname)
+			if (!init) throw new Error("Cant find factory method for " + mut.data.classname)
+			instance = init(this, mut.data)
+			obj[mut.path] = instance.data
+			this.instances.set(instance.data, instance)
+
 			this._store.addHistory(mut)
 			this._store.historyIds.add(mut.id)
 			if (instance && instance.created) instance.created()

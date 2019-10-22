@@ -83,11 +83,11 @@ export class DataStore {
 			for (const subMut of mut.data.history) {
 				if (forward) {
 					if (this.historyIds.has(subMut.id)) continue
-					this.applyMutation([obj], subMut)
+					this.applyMutation(obj, subMut)
 					this.historyIds.add(subMut.id)
 				} else {
 					if (!this.historyIds.has(subMut.id)) continue
-					this.revertMutation([obj], subMut)
+					this.revertMutation(obj, subMut)
 					this.historyIds.delete(subMut.id)
 				}
 			}
@@ -102,7 +102,7 @@ export class DataStore {
 			const target = this.history[index]
 			this.lastUndoIndex = index
 
-			this.revertMutation([obj], target)
+			this.revertMutation(obj, target)
 			this.undoBuffer.push(target.id)
 
 			this.addHistory(mut)
@@ -114,7 +114,7 @@ export class DataStore {
 			const target = this.history[index]
 			this.lastUndoIndex = index + 1
 
-			this.applyMutation([obj], target)
+			this.applyMutation(obj, target)
 			const index2 = this.undoBuffer.indexOf(target.id)
 			if (index2 != -1) this.undoBuffer.splice(index2, 1)
 
@@ -156,26 +156,22 @@ export class DataStore {
 		this.mutations[name] = cb
 	}
 
-	revertMutation(obj: any[], mut: any): void {
+	revertMutation(obj: any, mut: any): void {
 		if (!this.mutations[mut.name]) throw new Error(`Unknown mutation ${mut.name}`)
-		for (const o of obj) {
-			this.mutations[mut.name](o, mut, false)
-		}
+		this.mutations[mut.name](obj, mut, false)
 		this.historyIds.delete(mut.id)
 		this.evtApply.post(mut)
 	}
 
-	applyMutation(obj: any[], mut: any): void {
+	applyMutation(obj: any, mut: any): void {
 		if (!this.mutations[mut.name]) throw new Error(`Unknown mutation ${mut.name}`)
 		if (this.historyIds.has(mut.id)) return
-		for (const o of obj) {
-			this.mutations[mut.name](o, mut)
-		}
+		this.mutations[mut.name](obj, mut)
 		this.historyIds.add(mut.id)
 		this.evtApply.post(mut)
 	}
 
-	sync(obj: any[], history: any[]): void {
+	sync(obj: any, history: any[]): void {
 		for (const mut of history) {
 			this.applyMutation(obj, mut)
 		}

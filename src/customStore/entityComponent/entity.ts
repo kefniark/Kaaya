@@ -57,7 +57,7 @@ export class Entity {
 	created() {
 		const parent = this.store.getData(this.data.parentId)
 		if (!parent) return
-		if (parent.childIds.indexOf((x: string) => x === this.data.id) !== -1) return
+		if (parent.childIds.indexOf(this.data.id) !== -1) return
 		if (!this.store.created.has(this.id)) return
 		parent.childIds.push(this.data.id)
 	}

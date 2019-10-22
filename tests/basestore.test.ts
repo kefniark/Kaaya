@@ -31,17 +31,17 @@ test("Basic", () => {
 	expect(store.id).not.toBe(store2.id)
 })
 
-test("Proxy", () => {
-	const store = Kaaya.createRawStore({ a: 1, b: 2 })
-	const proxy = store.instantiateProxy()
-	const proxy2 = store.instantiateProxy()
+// test("Proxy", () => {
+// 	const store = Kaaya.createRawStore({ a: 1, b: 2 })
+// 	const proxy = store.instantiateProxy()
+// 	const proxy2 = store.instantiateProxy()
 
-	store.data.b = 3 // generate a `set` mutation
+// 	store.data.b = 3 // generate a `set` mutation
 
-	expect(store.serialize.b).toBe(3) // check the original data are updated
-	expect(proxy.b).toBe(3) // check the proxy data are updated too'
-	expect(proxy2.b).toBe(3) // check the proxy data are updated too'
-})
+// 	expect(store.serialize.b).toBe(3) // check the original data are updated
+// 	expect(proxy.b).toBe(3) // check the proxy data are updated too'
+// 	expect(proxy2.b).toBe(3) // check the proxy data are updated too'
+// })
 
 test("Transaction ", () => {
 	const store = Kaaya.createRawStore({ a: 1, b: 2 })
@@ -119,6 +119,7 @@ test("Undo Redo Add", () => {
 	expect(store.data.c).toBe(undefined)
 	expect(store2.data.c).toBe(undefined)
 
+	// console.log(store.history)
 	store.undo()
 	expect(store.data.b).toBe(4) // revert transaction
 

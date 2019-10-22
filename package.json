@@ -39,6 +39,7 @@
 		"@types/jest": "^24.0.19",
 		"@types/nanoid": "^2.1.0",
 		"@types/node": "^12.11.1",
+		"copy-webpack-plugin": "^5.0.4",
 		"coveralls": "^3.0.7",
 		"jest": "^24.9.0",
 		"npm-check": "^5.9.0",

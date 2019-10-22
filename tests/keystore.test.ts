@@ -15,14 +15,13 @@ test("API", () => {
 	expect(store.serialize.user.name).toBe("john") // check origin data are ok
 
 	const store2 = Kaaya.createKeyStore()
-	const proxy = store2.instantiateProxy()
 
 	// sync data between store 1 & 2
 	store2.sync(store.history)
 
 	expect(store2.data.user.name).toBe("john") // check data are ok
 	expect(store2.serialize.user.name).toBe("john") // check origin data are ok
-	expect(proxy.user.name).toBe("john") // check proxy data are ok
+	expect(store2.proxy.user.name).toBe("john") // check proxy data are ok
 
 	// delete user data on store 2
 	store2.delete("user", "name")

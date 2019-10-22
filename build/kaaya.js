@@ -1,4 +1,4 @@
-// [Kaaya]  Build: 0.0.3 - Sunday, October 20th, 2019, 10:40:52 PM  
+// [Kaaya]  Build: 0.0.3 - Tuesday, October 22nd, 2019, 9:16:13 PM  
  (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -14182,7 +14182,7 @@ class Entity {
         const parent = this.store.getData(this.data.parentId);
         if (!parent)
             return;
-        if (parent.childIds.indexOf((x) => x === this.data.id) !== -1)
+        if (parent.childIds.indexOf(this.data.id) !== -1)
             return;
         if (!this.store.created.has(this.id))
             return;
@@ -14231,6 +14231,141 @@ function __export(m) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __export(__webpack_require__(/*! ./entity */ "./src/customStore/entityComponent/entity.ts"));
 __export(__webpack_require__(/*! ./component */ "./src/customStore/entityComponent/component.ts"));
+
+
+/***/ }),
+
+/***/ "./src/customStore/fileFolder/entityFile.ts":
+/*!**************************************************!*\
+  !*** ./src/customStore/fileFolder/entityFile.ts ***!
+  \**************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const nanoid = __webpack_require__(/*! nanoid/non-secure */ "./node_modules/nanoid/non-secure/index.js");
+const check_1 = __webpack_require__(/*! ../../helpers/check */ "./src/helpers/check.ts");
+class EntityFile {
+    constructor(store, data) {
+        this.store = store;
+        const defaults = {
+            id: nanoid(),
+            parentId: "",
+            icon: "file",
+            label: "file",
+            meta: {}
+        };
+        this.data = Object.assign({}, defaults, data);
+    }
+    get id() {
+        return this.data.id;
+    }
+    get label() {
+        return this.data.label;
+    }
+    set label(val) {
+        this.watchedData.label = val;
+    }
+    get icon() {
+        return this.data.icon;
+    }
+    set icon(val) {
+        this.watchedData.icon = val;
+    }
+    get isFolder() {
+        return false;
+    }
+    get watchedData() {
+        return this.store.getData(this.data.id);
+    }
+    setParent(parentId) {
+        const parent = this.store.getData(parentId);
+        if (!parent)
+            return;
+        if (parent.childIds.indexOf(this.data.id) !== -1)
+            return;
+        if (this.data.parentId !== parentId) {
+            const prevParent = this.store.getData(this.data.parentId);
+            if (prevParent) {
+                prevParent.childIds = prevParent.childIds.filter((x) => x !== this.id);
+            }
+            this.data.parentId = parentId;
+        }
+        parent.childIds.push(this.data.id);
+    }
+    created() {
+        if (!this.store.created.has(this.id))
+            return;
+        this.setParent(this.data.parentId);
+    }
+    deleted() {
+        const parent = this.store.getData(this.data.parentId);
+        if (!parent || !parent.childIds)
+            return;
+        parent.childIds = parent.childIds.filter((x) => x !== this.id);
+    }
+    toNestedJSON() {
+        const data = check_1.clone(this.data);
+        delete data.parentId;
+        data.icon = this.icon;
+        data.selected = this.id === this.store.getData("meta").selected;
+        return data;
+    }
+}
+exports.EntityFile = EntityFile;
+
+
+/***/ }),
+
+/***/ "./src/customStore/fileFolder/entityFolder.ts":
+/*!****************************************************!*\
+  !*** ./src/customStore/fileFolder/entityFolder.ts ***!
+  \****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const nanoid = __webpack_require__(/*! nanoid/non-secure */ "./node_modules/nanoid/non-secure/index.js");
+const entityFile_1 = __webpack_require__(/*! ./entityFile */ "./src/customStore/fileFolder/entityFile.ts");
+const check_1 = __webpack_require__(/*! ../../helpers/check */ "./src/helpers/check.ts");
+class EntityFolder extends entityFile_1.EntityFile {
+    constructor(store, data) {
+        const defaults = {
+            id: nanoid(),
+            parentId: "",
+            label: "folder",
+            icon: "folder",
+            meta: {},
+            childIds: []
+        };
+        data = Object.assign({}, defaults, data);
+        super(store, data);
+    }
+    get icon() {
+        return this.data.icon + (!this.data.meta.collapse ? "-open" : "");
+    }
+    set icon(val) {
+        this.data.icon = val;
+    }
+    get isFolder() {
+        return true;
+    }
+    toNestedJSON() {
+        const data = check_1.clone(this.data);
+        delete data.parentId;
+        delete data.childIds;
+        data.icon = this.icon;
+        data.selected = this.id === this.store.getData("meta").selected;
+        data.children = this.data.childIds.map(x => this.store.getEntity(x).toNestedJSON());
+        data.children.sort((a, b) => a.label.localeCompare(b.label));
+        return data;
+    }
+}
+exports.EntityFolder = EntityFolder;
 
 
 /***/ }),
@@ -14325,6 +14460,8 @@ const js_ini_1 = __webpack_require__(/*! js-ini */ "./node_modules/js-ini/lib/in
 const yaml_1 = __webpack_require__(/*! yaml */ "./node_modules/yaml/browser/index.js");
 const entityComponent_1 = __webpack_require__(/*! ./customStore/entityComponent */ "./src/customStore/entityComponent/index.ts");
 const stores_1 = __webpack_require__(/*! ./stores */ "./src/stores/index.ts");
+const entityFolder_1 = __webpack_require__(/*! ./customStore/fileFolder/entityFolder */ "./src/customStore/fileFolder/entityFolder.ts");
+const entityFile_1 = __webpack_require__(/*! ./customStore/fileFolder/entityFile */ "./src/customStore/fileFolder/entityFile.ts");
 class Kaaya {
     /**
      * Create a Base Store (basic store without helpers or predefined structure)
@@ -14393,6 +14530,14 @@ class Kaaya {
         store.register("Transform", (store, data) => new entityComponent_1.TransformComponent(store, data));
         return store;
     }
+    createFileFolderStore(data = {}) {
+        if (!data.meta)
+            data.meta = { selected: "" };
+        const store = this.createEntityStore(data);
+        store.register("File", (store, data) => new entityFile_1.EntityFile(store, data));
+        store.register("Folder", (store, data) => new entityFolder_1.EntityFolder(store, data));
+        return store;
+    }
 }
 exports.Kaaya = Kaaya;
 
@@ -14411,13 +14556,15 @@ exports.Kaaya = Kaaya;
 Object.defineProperty(exports, "__esModule", { value: true });
 const dataStore_1 = __webpack_require__(/*! ./dataStore */ "./src/stores/dataStore.ts");
 const onChange = __webpack_require__(/*! on-change */ "./node_modules/on-change/index.js");
+const check_1 = __webpack_require__(/*! ../helpers/check */ "./src/helpers/check.ts");
 class BaseStore {
+    // private _updatedObj: any[]
     constructor(data = {}) {
         this._originalData = data;
         this._store = new dataStore_1.DataStore();
-        this._updatedObj = [this._originalData];
+        // this._updatedObj = [this._originalData]
         this._store.evtCreate.attach((mut) => {
-            this._store.applyMutation(this._updatedObj, mut);
+            this._store.applyMutation(this._originalData, mut);
         });
         this._data = onChange(this._originalData, (path, value, previousValue) => {
             if (previousValue === undefined) {
@@ -14436,10 +14583,13 @@ class BaseStore {
         return this._store.id;
     }
     get history() {
-        return this._store.getHistory();
+        return check_1.clone(this._store.getHistory());
     }
     get data() {
         return this._data;
+    }
+    get proxy() {
+        return check_1.clone(this.data);
     }
     get serialize() {
         return this._originalData;
@@ -14454,24 +14604,19 @@ class BaseStore {
         this._store.evtApply.attach(cb);
     }
     sync(history) {
-        this._store.sync(this._updatedObj, history);
-    }
-    instantiateProxy() {
-        const proxy = JSON.parse(JSON.stringify(this._originalData));
-        this._updatedObj.push(proxy);
-        return proxy;
+        this._store.sync(this._originalData, history);
     }
     undo() {
         const mutId = this._store.nextUndoId;
+        // console.log(`undo id ${mutId}`)
         if (mutId !== -1)
             this._store.createMutation("undo", "", { id: mutId });
-        // console.log('undo', mutId, this.data);
     }
     redo() {
         const mutId = this._store.nextRedoId;
+        // console.log(`redo id ${mutId}`)
         if (mutId !== -1)
             this._store.createMutation("redo", "", { id: mutId });
-        // console.log('redo', mutId, this.data);
     }
 }
 exports.BaseStore = BaseStore;
@@ -14553,13 +14698,13 @@ class DataStore {
                 if (forward) {
                     if (this.historyIds.has(subMut.id))
                         continue;
-                    this.applyMutation([obj], subMut);
+                    this.applyMutation(obj, subMut);
                     this.historyIds.add(subMut.id);
                 }
                 else {
                     if (!this.historyIds.has(subMut.id))
                         continue;
-                    this.revertMutation([obj], subMut);
+                    this.revertMutation(obj, subMut);
                     this.historyIds.delete(subMut.id);
                 }
             }
@@ -14572,7 +14717,7 @@ class DataStore {
             const index = this.history.findIndex(x => x.id === mut.data.id);
             const target = this.history[index];
             this.lastUndoIndex = index;
-            this.revertMutation([obj], target);
+            this.revertMutation(obj, target);
             this.undoBuffer.push(target.id);
             this.addHistory(mut);
             this.historyIds.add(mut.id);
@@ -14581,7 +14726,7 @@ class DataStore {
             const index = this.history.findIndex(x => x.id === mut.data.id);
             const target = this.history[index];
             this.lastUndoIndex = index + 1;
-            this.applyMutation([obj], target);
+            this.applyMutation(obj, target);
             const index2 = this.undoBuffer.indexOf(target.id);
             if (index2 != -1)
                 this.undoBuffer.splice(index2, 1);
@@ -14635,9 +14780,7 @@ class DataStore {
     revertMutation(obj, mut) {
         if (!this.mutations[mut.name])
             throw new Error(`Unknown mutation ${mut.name}`);
-        for (const o of obj) {
-            this.mutations[mut.name](o, mut, false);
-        }
+        this.mutations[mut.name](obj, mut, false);
         this.historyIds.delete(mut.id);
         this.evtApply.post(mut);
     }
@@ -14646,9 +14789,7 @@ class DataStore {
             throw new Error(`Unknown mutation ${mut.name}`);
         if (this.historyIds.has(mut.id))
             return;
-        for (const o of obj) {
-            this.mutations[mut.name](o, mut);
-        }
+        this.mutations[mut.name](obj, mut);
         this.historyIds.add(mut.id);
         this.evtApply.post(mut);
     }
@@ -14678,7 +14819,6 @@ exports.DataStore = DataStore;
 Object.defineProperty(exports, "__esModule", { value: true });
 const baseStore_1 = __webpack_require__(/*! ./baseStore */ "./src/stores/baseStore.ts");
 const nanoid = __webpack_require__(/*! nanoid/non-secure */ "./node_modules/nanoid/non-secure/index.js");
-const check_1 = __webpack_require__(/*! ../helpers/check */ "./src/helpers/check.ts");
 class EntityStore extends baseStore_1.BaseStore {
     constructor(data = {}) {
         super(data);
@@ -14688,17 +14828,12 @@ class EntityStore extends baseStore_1.BaseStore {
         this._store.registerMutation("create", (obj, mut, _forward) => {
             let instance = undefined;
             // only instantiate object on real not proxy
-            if (obj === this._originalData) {
-                const init = this.factory.get(mut.data.classname);
-                if (!init)
-                    throw new Error("Cant find factory method for " + mut.data.classname);
-                instance = init(this, mut.data);
-                this._originalData[mut.path] = instance.data;
-                this.instances.set(instance.data, instance);
-            }
-            else {
-                obj[mut.path] = check_1.clone(this.data[mut.path]);
-            }
+            const init = this.factory.get(mut.data.classname);
+            if (!init)
+                throw new Error("Cant find factory method for " + mut.data.classname);
+            instance = init(this, mut.data);
+            obj[mut.path] = instance.data;
+            this.instances.set(instance.data, instance);
             this._store.addHistory(mut);
             this._store.historyIds.add(mut.id);
             if (instance && instance.created)

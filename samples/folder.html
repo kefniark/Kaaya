@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Kaaya Sample !</title>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.css" />
+		<script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+		<script src="./kaaya.js"></script>
+		<script src="https://raw.githubusercontent.com/ParadeTo/vue-tree-list/master/dist/vue-tree-list.min.js"></script>
+		<style>
+			.blockGO {
+				float: left;
+				margin: 20px;
+				width: 45%;
+				border: 1px solid #b8bbd4;
+				border-radius: 10px;
+				padding: 10px 8px;
+			}
+
+			.menu-list li ul {
+				margin: 0 0.75em;
+			}
+
+			.menu-list .folder-active {
+				background-color: cyan;
+			}
+
+			.menu-list .folder-active:hover {
+				background-color: gray;
+			}
+		</style>
+		<script>
+			FontAwesomeConfig = { autoReplaceSvg: "nest" }
+		</script>
+	</head>
+
+	<body>
+		<section class="section">
+			<div class="container">
+				<h1 class="title">Kaaya Sample - Files/Folders</h1>
+
+				<div id="app">
+					<div style="display: block; overflow: auto;">
+						<div class="blockGO">
+							<aside class="menu">
+								<label class="label">Server</label>
+								<vue-tree-files
+									:folders="this.serverFolders"
+									:nodeclick="nodeClick"
+									:nodedrop="nodeDrop"
+								></vue-tree-files>
+							</aside>
+
+							<div style="text-align: center; margin-top: 10px;">
+								<button class="button is-link" v-on:click="this.add">Add File</button>
+								<button class="button is-link" v-on:click="this.sync">Sync</button>
+							</div>
+							<br />
+							<textarea rows="20" class="textarea is-small" readonly>{{
+								this.serverFolders[0]
+							}}</textarea>
+						</div>
+
+						<div class="blockGO">
+							<aside class="menu">
+								<label class="label">Client</label>
+								<vue-tree-files :folders="this.clientFolders" :nodeclick="nodeClick2"></vue-tree-files>
+							</aside>
+							<br />
+							<textarea rows="20" class="textarea is-small" readonly>{{
+								this.clientFolders[0]
+							}}</textarea>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<script>
+			// hack to work with webpack-dev-server
+			window.Kaaya = window.Kaaya.default
+
+			Array.prototype.random = function() {
+				return this[Math.floor(Math.random() * this.length)]
+			}
+
+			// create server data store
+			var objServer = Kaaya.createFileFolderStore()
+			objServer.create("Folder", { id: "user", label: "User" })
+			objServer.create("Folder", { id: "docs", label: "Documents", parentId: "user" })
+			objServer.create("Folder", { id: "img", label: "Images", parentId: "user" })
+			objServer.create("Folder", { id: "photo", label: "Photo", parentId: "img" })
+			objServer.create("Folder", { id: "pics", label: "Pictures", parentId: "img" })
+			objServer.create("Folder", { id: "screen", label: "Screenshot", parentId: "img" })
+			objServer.create("Folder", { id: "music", label: "Musics", parentId: "user", meta: { collapse: true } })
+			objServer.create("Folder", { id: "video", label: "Videos", parentId: "user" })
+
+			const serverRoot = objServer.getEntity("user")
+
+			var objClient = Kaaya.createFileFolderStore()
+			objClient.sync(objServer.history)
+			const clientRoot = objClient.getEntity("user")
+
+			objServer.create("File", { id: "test.txt", label: "Test", parentId: "docs", icon: "file" })
+			objServer.create("File", { id: "test2.txt", label: "Test2", parentId: "docs", icon: "file-code" })
+			objServer.create("File", { id: "test3.txt", label: "Test3", parentId: "docs", icon: "file-code" })
+			objServer.create("File", { id: "test.jpg", label: "Test", parentId: "img", icon: "file-image" })
+
+			Vue.component("vue-tree-files", {
+				props: ["folders", "nodeclick", "nodedrop"],
+				methods: {
+					labelClass: folder => `${folder.selected ? "folder-active" : ""}`,
+					folderIcon: folder => `fas fa-${folder.icon}`,
+					handleDragStart(ev) {
+						var id = ev.target.dataset.id
+						if (!id) return
+						console.log("Drag", ev, id)
+						ev.dataTransfer.setData("id", id)
+					},
+					handleDragOver(ev) {
+						//console.log(ev)
+						ev.preventDefault()
+					},
+					handleDrop(ev) {
+						var dragId = ev.dataTransfer.getData("id")
+						var targetId = ev.target.dataset.id
+						if (!dragId && !targetId) return
+						console.log("Drop", dragId, targetId)
+						if (this.nodedrop) this.nodedrop(dragId, targetId)
+						ev.preventDefault()
+						ev.stopPropagation()
+					}
+				},
+				template: `
+                <ul class="menu-list">
+                    <li v-for="(folder, folderId) in folders" v:key="folder.id" draggable="true" v-on:dragstart="handleDragStart" v-on:dragover="handleDragOver" v-on:drop="handleDrop" :data-id="folder.id">
+                        <a v-on:click="nodeclick(folder.id)" :data-id="folder.id" :class="labelClass(folder)">
+                            <i :class="folderIcon(folder)" :data-id="folder.id"></i>
+                            <span class="is-capitalized has-text-weight-normal" :data-id="folder.id">{{ folder.label }}</span>
+                        </a>
+                        <vue-tree-files v-if="!folder.meta.collapse && folder.children && folder.children.length > 0" :folders="folder.children" :nodeclick="nodeclick" :nodedrop="nodedrop"></vue-tree-files>
+                    </li>
+                </ul>
+                `
+			})
+
+			// console.log(serverProxy)
+			var app = new Vue({
+				el: "#app",
+				data() {
+					return {
+						serverFolders: [serverRoot.toNestedJSON()],
+						clientFolders: [clientRoot.toNestedJSON()]
+					}
+				},
+				methods: {
+					add() {
+						if (!objServer.data.meta.selected) return
+						var entity = objServer.getEntity(objServer.data.meta.selected)
+						if (!entity.isFolder) return
+						var id = Math.round(1000 * Math.random())
+						objServer.create("File", {
+							id: `test${id}.txt`,
+							label: `Test ${id}`,
+							parentId: entity.id
+						})
+						this.refresh()
+					},
+					sync() {
+						console.log("sync", objServer.history)
+						objClient.sync(objServer.history)
+						this.clientRefresh()
+					},
+					nodeDrop(dragId, targetId) {
+						var entity = objServer.getEntity(dragId)
+						var newParent = objServer.getEntity(targetId)
+						if (!entity || !newParent) return
+						if (entity.parent === newParent) return
+						entity.setParent(newParent.id)
+						this.refresh()
+					},
+					nodeClick(data) {
+						var entity = objServer.getEntity(data)
+						if (!entity) return
+						if (objServer.data.meta.selected != entity.id) {
+							objServer.data.meta.selected = entity.id
+						} else {
+							entity.watchedData.meta.collapse = !entity.watchedData.meta.collapse
+						}
+						this.refresh()
+					},
+					nodeClick2(data) {
+						var entity = objClient.getEntity(data)
+						if (!entity) return
+						entity.watchedData.meta.collapse = !entity.watchedData.meta.collapse
+						this.clientRefresh()
+					},
+					refresh() {
+						this.serverFolders = Object.assign({}, this.folders, [serverRoot.toNestedJSON()])
+					},
+					clientRefresh() {
+						this.clientFolders = Object.assign({}, this.folders, [clientRoot.toNestedJSON()])
+					}
+				}
+			})
+		</script>
+	</body>
+</html>

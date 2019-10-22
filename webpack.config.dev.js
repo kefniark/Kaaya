@@ -1,8 +1,8 @@
-"use strict";
+"use strict"
 
-const path = require("path");
-const WebpackShellPlugin = require("webpack-shell-plugin");
-const WebpackAutoInject = require("webpack-auto-inject-version");
+const path = require("path")
+const WebpackShellPlugin = require("webpack-shell-plugin")
+const WebpackAutoInject = require("webpack-auto-inject-version")
 
 module.exports = {
 	mode: "development",
@@ -23,9 +23,7 @@ module.exports = {
 		rules: [
 			{
 				test: /\.tsx?$/,
-				use: [
-					{ loader: "ts-loader" }
-				]
+				use: [{ loader: "ts-loader" }]
 			}
 		]
 	},
@@ -50,10 +48,7 @@ module.exports = {
 		})
 	],
 	devServer: {
-		contentBase: [
-			path.join(__dirname, "./build"),
-			path.join(__dirname, "./samples")
-		],
+		contentBase: [path.join(__dirname, "./build"), path.join(__dirname, "./samples")],
 		index: "samples/index.html"
 	}
-};
+}

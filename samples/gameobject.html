@@ -26,13 +26,8 @@
 
 				<div id="app">
 					<div style="display: block; overflow: auto;">
-						<list
-							v-for="store in stores"
-							v-bind:proxy="store.proxy"
-							v-bind:key="store.key"
-							v-bind:name="store.id"
-							v-bind:id="store.key"
-						></list>
+						<list :id="server.id" :name="server.name" :proxy="server.proxy"></list>
+						<list :id="client.id" :name="client.name" :proxy="client.proxy"></list>
 					</div>
 				</div>
 			</div>
@@ -53,50 +48,11 @@
 					{{ elem.name }} (<small>{{ elemId }}</small> <span v-if="!elem.name">{{elem.position}}</span>)
 					<list-elem v-for="childId of elem.componentIds" v-bind:proxy="proxy" v-bind:key="childId" v-bind:elem="proxy[childId]" v-bind:elemId="childId"></list-elem>
 					<list-elem v-for="childId of elem.childIds" v-bind:proxy="proxy" v-bind:key="childId" v-bind:elem="proxy[childId]" v-bind:elemId="childId"></list-elem>
-				</div>
-			`,
-				mounted: function() {
-					// console.log("list-elem", this.proxy, this.elem, this.elemId)
-					var store = mapStore.get(this.proxy)
-					store.observe(mut => {
-						if (!mut.path.startsWith(this.elemId)) return
-						// console.log("Get Change", mut.path, this.elemId, !mut.path.startsWith(this.elemId))
-						this.$forceUpdate()
-					})
-				}
+				</div>`
 			})
 
 			Vue.component("list", {
 				props: ["proxy", "name", "id"],
-				data: function() {
-					return {
-						childs: ["canvas", "game"]
-					}
-				},
-				methods: {
-					// send: function() {
-					// 	var data = mapStore.get(this.proxy).data
-					// 	objServer.store.sync([objServer.data, objServer.proxy], store.getHistory())
-					// },
-					move: function() {
-						var store = mapStore.get(this.proxy)
-						var childId = store.getData("canvas").childIds.random()
-						if (!childId) return
-						store.getEntity(childId).transform.position.x += 1
-					},
-					add: function() {
-						var store = mapStore.get(this.proxy)
-
-						var id = "test" + Math.round(Math.random() * 10000)
-						store.create("Entity", { id, parentId: "canvas", name: id })
-						store.create("Transform", { id: `${id}_transform`, parentId: id })
-					},
-					delete: function() {
-						var store = mapStore.get(this.proxy)
-						var childId = store.getData("canvas").childIds.random()
-						if (childId) store.delete(childId)
-					}
-				},
 				template: `
 			<div class="blockGO">
 				<label class="label">{{ name }} (<small>{{ id }}</small>)</label>
@@ -109,10 +65,25 @@
 					<input class="button is-link" type="button" value="Move" v-on:click="this.move"/>
 				</div>
 			</div>`,
-				mounted: function() {
-					// console.log("list", this.proxy, this.name, this.id)
-					var store = mapStore.get(this.proxy)
-					store.observe(mut => this.$forceUpdate())
+				methods: {
+					move: function() {
+						var store = mapStore.get(this.id)
+						var childId = store.getData("canvas").childIds.random()
+						if (!childId) return
+						store.getEntity(childId).transform.position.x += 1
+					},
+					add: function() {
+						var store = mapStore.get(this.id)
+
+						var id = "test" + Math.round(Math.random() * 10000)
+						store.create("Entity", { id, parentId: "canvas", name: id })
+						store.create("Transform", { id: `${id}_transform`, parentId: id })
+					},
+					delete: function() {
+						var store = mapStore.get(this.id)
+						var childId = store.getData("canvas").childIds.random()
+						if (childId) store.delete(childId)
+					}
 				}
 			})
 
@@ -133,30 +104,27 @@
 			// create few clients
 			var objClient = Kaaya.createEntityComponentStore({ meta: { selected: "", root: [] } })
 
-			objServer.observe(mut => {
-				// console.log(`Store [${objServer.id}]`, serverProxy)
-				var history = JSON.parse(JSON.stringify(objServer.history))
-				setTimeout(() => objClient.sync(history), 500)
-			})
+			var mapStore = new Map()
+			mapStore.set(objServer.id, objServer)
+			mapStore.set(objClient.id, objClient)
 
-			var serverProxy = objServer.instantiateProxy()
-			var clientProxy = objClient.instantiateProxy()
-
-			// console.log(`Ready to start ${objServer.id} -> ${objClient.id}`)
-
-			var mapStore = new WeakMap()
-			mapStore.set(serverProxy, objServer)
-			mapStore.set(clientProxy, objClient)
-
-			// console.log(serverProxy)
 			var app = new Vue({
 				el: "#app",
-				data: {
-					stores: []
+				data() {
+					return {
+						server: { id: objServer.id, name: "Server", proxy: objServer.proxy },
+						client: { id: objClient.id, name: "Client", proxy: objClient.proxy }
+					}
 				},
 				mounted() {
-					this.stores.push({ id: "Server", key: objServer.id, proxy: serverProxy })
-					this.stores.push({ id: "Client", key: objClient.id, proxy: clientProxy })
+					objServer.observe(mut => {
+						this.server.proxy = objServer.proxy
+						var history = objServer.history
+						setTimeout(() => objClient.sync(history), 500)
+					})
+					objClient.observe(mut => {
+						this.client.proxy = objClient.proxy
+					})
 				}
 			})
 		</script>

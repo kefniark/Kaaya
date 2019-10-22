@@ -2,6 +2,8 @@ import { parse as parseIni } from "js-ini"
 import { parse as parseYaml } from "yaml"
 import { Entity, TransformComponent } from "./customStore/entityComponent"
 import { BaseStore, KeyStore, TableStore, EntityStore } from "./stores"
+import { EntityFolder } from "./customStore/fileFolder/entityFolder"
+import { EntityFile } from "./customStore/fileFolder/entityFile"
 
 export class Kaaya {
 	/**
@@ -78,6 +80,14 @@ export class Kaaya {
 		const store = this.createEntityStore(data)
 		store.register("Entity", (store, data) => new Entity(store, data))
 		store.register("Transform", (store, data) => new TransformComponent(store, data))
+		return store
+	}
+
+	public createFileFolderStore(data: any = {}): EntityStore {
+		if (!data.meta) data.meta = { selected: "" }
+		const store = this.createEntityStore(data)
+		store.register("File", (store, data) => new EntityFile(store, data))
+		store.register("Folder", (store, data) => new EntityFolder(store, data))
 		return store
 	}
 }

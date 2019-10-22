@@ -49,18 +49,18 @@ test("API", () => {
 	// delete entity
 	store1.delete("game_object2")
 
-	const store2 = Kaaya.createEntityComponentStore()
+	// const store2 = Kaaya.createEntityComponentStore()
 
-	const store1Proxy = store1.instantiateProxy()
-	const store2Proxy = store2.instantiateProxy()
+	// const store1Proxy = store1.instantiateProxy()
+	// const store2Proxy = store2.instantiateProxy()
 
-	// console.log(store1.history)
-	store2.sync(store1.history)
+	// // console.log(store1.history)
+	// store2.sync(store1.history)
 
-	expect(store1.data.root.childIds.length).toBe(2)
-	expect(store1.data.root.childIds.length).toBe(2)
-	//console.log(`[Proxy]`, store1Proxy)
-	expect(store1Proxy.root.childIds.length).toBe(2)
-	//console.log(`[Proxy]`, store2Proxy)
-	expect(store2Proxy.root.childIds.length).toBe(2)
+	// expect(store1.data.root.childIds.length).toBe(2)
+	// expect(store1.data.root.childIds.length).toBe(2)
+	// //console.log(`[Proxy]`, store1Proxy)
+	// expect(store1Proxy.root.childIds.length).toBe(2)
+	// //console.log(`[Proxy]`, store2Proxy)
+	// expect(store2Proxy.root.childIds.length).toBe(2)
 })

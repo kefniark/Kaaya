@@ -1,8 +1,9 @@
-"use strict";
+"use strict"
 
-const path = require("path");
-const WebpackShellPlugin = require("webpack-shell-plugin");
-const WebpackAutoInject = require("webpack-auto-inject-version");
+const path = require("path")
+const WebpackShellPlugin = require("webpack-shell-plugin")
+const WebpackAutoInject = require("webpack-auto-inject-version")
+const CopyPlugin = require("copy-webpack-plugin")
 
 module.exports = {
 	mode: "production",
@@ -22,13 +23,12 @@ module.exports = {
 		rules: [
 			{
 				test: /\.tsx?$/,
-				use: [
-					{ loader: "ts-loader" }
-				]
+				use: [{ loader: "ts-loader" }]
 			}
 		]
 	},
 	plugins: [
+		new CopyPlugin([{ from: "samples", to: "../public" }]),
 		new WebpackShellPlugin({
 			onBuildEnd: ["node tools/fix-prod.js"]
 		}),
@@ -47,4 +47,4 @@ module.exports = {
 			}
 		})
 	]
-};
+}

@@ -1,15 +1,19 @@
 import { DataStore } from "./dataStore"
 import onChange = require("on-change")
+import { clone } from "../helpers/check"
 
 export class BaseStore {
 	public get id(): string {
 		return this._store.id
 	}
 	public get history(): any[] {
-		return this._store.getHistory()
+		return clone(this._store.getHistory())
 	}
 	public get data(): any {
 		return this._data
+	}
+	public get proxy(): any {
+		return clone(this.data)
 	}
 	public get serialize(): any {
 		return this._originalData
@@ -17,15 +21,15 @@ export class BaseStore {
 	protected _store: DataStore
 	protected _originalData: any
 	private _data: any
-	private _updatedObj: any[]
+	// private _updatedObj: any[]
 
 	constructor(data: any = {}) {
 		this._originalData = data
 		this._store = new DataStore()
-		this._updatedObj = [this._originalData]
+		// this._updatedObj = [this._originalData]
 
 		this._store.evtCreate.attach((mut: any) => {
-			this._store.applyMutation(this._updatedObj, mut)
+			this._store.applyMutation(this._originalData, mut)
 		})
 
 		this._data = onChange(this._originalData, (path: string, value: any, previousValue: any) => {
@@ -53,24 +57,18 @@ export class BaseStore {
 	}
 
 	public sync(history: any[]): void {
-		this._store.sync(this._updatedObj, history)
-	}
-
-	public instantiateProxy(): any {
-		const proxy = JSON.parse(JSON.stringify(this._originalData))
-		this._updatedObj.push(proxy)
-		return proxy
+		this._store.sync(this._originalData, history)
 	}
 
 	public undo(): void {
 		const mutId = this._store.nextUndoId
+		// console.log(`undo id ${mutId}`)
 		if (mutId !== -1) this._store.createMutation("undo", "", { id: mutId })
-		// console.log('undo', mutId, this.data);
 	}
 
 	public redo(): void {
 		const mutId = this._store.nextRedoId
+		// console.log(`redo id ${mutId}`)
 		if (mutId !== -1) this._store.createMutation("redo", "", { id: mutId })
-		// console.log('redo', mutId, this.data);
 	}
 }
