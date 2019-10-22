@@ -1,7 +1,6 @@
 .idea/
 coverage/
 node_modules/
-public/
 lib/
 
 build/declarations/

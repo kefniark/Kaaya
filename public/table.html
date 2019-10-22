@@ -1,0 +1,163 @@
+<!-- [Kaaya]  Build: 0.0.3 - Tuesday, October 22nd, 2019, 9:16:15 PM  --> 
+ <!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Kaaya Sample !</title>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.css" />
+		<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+		<script src="../build/kaaya.min.js"></script>
+		<style>
+			.blockGO {
+				float: left;
+				margin: 20px;
+				width: 45%;
+				border: 1px solid #b8bbd4;
+				border-radius: 10px;
+				padding: 10px 8px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<section class="section">
+			<div class="container">
+				<h1 class="title">Kaaya Sample - Table</h1>
+
+				<div id="app">
+					<div style="display: block; overflow: auto;">
+						<list :id="server.id" :name="server.name" :proxy="server.proxy"></list>
+						<list :id="client.id" :name="client.name" :proxy="client.proxy"></list>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<script>
+			// hack to work with webpack-dev-server
+			
+
+			Array.prototype.random = function() {
+				return this[Math.floor(Math.random() * this.length)]
+			}
+
+			Vue.component("list-elem", {
+				props: ["proxy", "elem", "elemId"],
+				template: `
+				<div style="margin-top: 25px;">
+					<h3 class="title is-3" style="text-transform: capitalize;">{{ elemId }}</h3>
+					<table class="table is-bordered is-striped is-hoverable is-fullwidth">
+						<thead>
+							<th v-for="(item, id) in Object.values(elem.values)[0]">{{id}}</th>
+						</thead>
+						<tbody>
+							<tr v-for="(item) in Object.values(elem.values)">
+								<td v-for="(item2, id2) in item">{{ item2 }}</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			`
+			})
+
+			Vue.component("list", {
+				props: ["proxy", "name", "id"],
+				template: `
+			<div class="blockGO">
+				<label class="label">{{ name }} (<small>{{ id }}</small>)</label>
+				<div>
+					<list-elem v-for="(child, childId) in proxy" v-bind:proxy="proxy" v-bind:elem="child" v-bind:key="childId" v-bind:elemId="childId"></list-elem>
+				</div>
+				<div style="text-align: center; margin-top: 10px;">
+					<input class="button is-link" type="button" value="Add" v-on:click="this.add"/>
+					<input class="button is-link" type="button" value="Set" v-on:click="this.set"/>
+					<input class="button is-link" type="button" value="Delete" v-on:click="this.delete"/>
+				</div>
+			</div>`,
+				methods: {
+					add: function() {
+						var store = mapStore.get(this.id)
+						var key = Math.random()
+							.toString(36)
+							.substr(2, 5)
+						store.addRow("levels", { name: key, difficulty: "~" })
+					},
+					set: function() {
+						var store = mapStore.get(this.id)
+						store.setCell(
+							"translation",
+							"second_level",
+							"used",
+							!store.getCell("translation", "second_level", "used")
+						)
+					},
+					delete: function() {
+						var store = mapStore.get(this.id)
+						var key = store
+							.getRows("levels")
+							.map(x => x.id)
+							.random()
+						store.deleteRow("levels", key)
+					}
+				}
+			})
+
+			// create server data store
+			var objServer = Kaaya.createTableStore()
+
+			// create few clients
+			var objClient = Kaaya.createTableStore()
+			objServer.observe(mut => {
+				var history = JSON.parse(JSON.stringify(objServer.history))
+				console.log("new Mutation", mut)
+				setTimeout(() => objClient.sync(history), 500)
+			})
+
+			// set data
+			objServer.createSheet("levels")
+			objServer.addRow("levels", { id: 1, name: "first_level", difficulty: "easy" })
+			objServer.addRow("levels", { id: 2, name: "second_level", difficulty: "hard" })
+
+			objServer.createSheet("translation")
+			objServer.addRow("translation", { id: "first_level", used: true, fr: "premier level", en: "first level" })
+			objServer.addRow("translation", {
+				id: "second_level",
+				used: true,
+				fr: "deuxieme level",
+				en: "second level"
+			})
+			objServer.addRow("translation", {
+				id: "third_level",
+				used: false,
+				fr: "troisieme level",
+				en: "third level"
+			})
+
+			var mapStore = new Map()
+			mapStore.set(objServer.id, objServer)
+			mapStore.set(objClient.id, objClient)
+
+			var app = new Vue({
+				el: "#app",
+				data() {
+					return {
+						server: { id: objServer.id, name: "Server", proxy: objServer.proxy },
+						client: { id: objClient.id, name: "Client", proxy: objClient.proxy }
+					}
+				},
+				mounted() {
+					objServer.observe(mut => {
+						this.server.proxy = objServer.proxy
+						var history = objServer.history
+						setTimeout(() => objClient.sync(history), 500)
+					})
+					objClient.observe(mut => {
+						this.client.proxy = objClient.proxy
+					})
+				}
+			})
+		</script>
+	</body>
+</html>
+ 
