@@ -26,6 +26,10 @@ Kaaya is a delightful javascript library which target on state management and da
 
 ---
 
+* **Samples**: [Here](https://kefniark.github.io/Kaaya/public)
+
+---
+
 ## Usage
 
 ### Basic Store Creation
