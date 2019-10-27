@@ -6,6 +6,30 @@ import { SyncEvent } from "ts-events"
 export class DataStore {
 	public evtCreate: SyncEvent<any>
 	public evtApply: SyncEvent<any>
+	private hook: {
+		name: string
+		path: string
+		type: string
+		promise: (obj: any, mut: any) => Promise<void>
+	}[] = []
+
+	public addHookBefore(name: string, path: string, promise: (obj: any, mut: any) => Promise<void>) {
+		this.hook.push({
+			type: "before",
+			name,
+			path,
+			promise
+		})
+	}
+
+	public addHookAfter(name: string, path: string, promise: (obj: any, mut: any) => Promise<void>) {
+		this.hook.push({
+			type: "after",
+			name,
+			path,
+			promise
+		})
+	}
 
 	public id: string
 	private mutations: { [id: string]: (obj: any, mut: any, forward?: boolean) => void } = {}
@@ -139,9 +163,9 @@ export class DataStore {
 		this.transactionMeta = meta
 	}
 
-	public transactionEnd(): void {
-		this.createMutation("transaction", "", {
-			meta: this.transactionMeta,
+	public transactionEnd(path: string, meta: any = {}): void {
+		this.createMutation("transaction", path, {
+			meta: Object.assign(this.transactionMeta, meta),
 			history: this.transactionHistory
 		})
 	}
@@ -171,9 +195,53 @@ export class DataStore {
 		this.evtApply.post(mut)
 	}
 
-	sync(obj: any, history: any[]): void {
+	async hookBefore(obj: any, mut: any) {
+		for (const hook of this.hook) {
+			if (hook.type !== "before") continue
+			if (hook.name !== mut.name) continue
+			if (hook.path !== mut.path) continue
+			await hook.promise(obj, mut)
+		}
+	}
+
+	async hookAfter(obj: any, mut: any) {
+		for (const hook of this.hook) {
+			if (hook.type !== "after") continue
+			if (hook.name !== mut.name) continue
+			if (hook.path !== mut.path) continue
+			await hook.promise(obj, mut)
+		}
+	}
+
+	sync(obj: any, history: any[]) {
 		for (const mut of history) {
 			this.applyMutation(obj, mut)
+		}
+	}
+
+	private syncCurrent: { (): Promise<void> } | undefined
+	private syncQueue: { (): Promise<void> }[] = []
+
+	async syncAsyncExecute(obj: any, history: any[]) {
+		for (const mut of history) {
+			if (this.historyIds.has(mut.id)) continue
+			await this.hookBefore(obj, mut)
+			this.applyMutation(obj, mut)
+			await this.hookAfter(obj, mut)
+		}
+	}
+
+	async syncAsync(obj: any, history: any[]) {
+		this.syncQueue.push(() => this.syncAsyncExecute(obj, history))
+
+		if (!this.syncCurrent) {
+			let elem = this.syncQueue.shift()
+			while (!!elem) {
+				this.syncCurrent = elem
+				await elem()
+				elem = this.syncQueue.shift()
+				this.syncCurrent = undefined
+			}
 		}
 	}
 

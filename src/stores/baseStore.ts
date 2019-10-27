@@ -21,12 +21,10 @@ export class BaseStore {
 	protected _store: DataStore
 	protected _originalData: any
 	private _data: any
-	// private _updatedObj: any[]
 
 	constructor(data: any = {}) {
 		this._originalData = data
 		this._store = new DataStore()
-		// this._updatedObj = [this._originalData]
 
 		this._store.evtCreate.attach((mut: any) => {
 			this._store.applyMutation(this._originalData, mut)
@@ -44,12 +42,20 @@ export class BaseStore {
 		})
 	}
 
-	public transactionStart(meta: any = {}): void {
+	public addHookBefore(name: string, path: string, promise: (obj: any, mut: any) => Promise<void>) {
+		this._store.addHookBefore(name, path, promise)
+	}
+
+	public addHookAfter(name: string, path: string, promise: (obj: any, mut: any) => Promise<void>) {
+		this._store.addHookAfter(name, path, promise)
+	}
+
+	public transactionStart(meta?: any): void {
 		this._store.transactionStart(meta)
 	}
 
-	public transactionEnd(): void {
-		this._store.transactionEnd()
+	public transactionEnd(path: string = "", meta?: any): void {
+		this._store.transactionEnd(path, meta)
 	}
 
 	public observe(cb: (mut: any) => void): void {
@@ -60,15 +66,17 @@ export class BaseStore {
 		this._store.sync(this._originalData, history)
 	}
 
+	public async syncAsync(history: any[]) {
+		await this._store.syncAsync(this._originalData, history)
+	}
+
 	public undo(): void {
 		const mutId = this._store.nextUndoId
-		// console.log(`undo id ${mutId}`)
 		if (mutId !== -1) this._store.createMutation("undo", "", { id: mutId })
 	}
 
 	public redo(): void {
 		const mutId = this._store.nextRedoId
-		// console.log(`redo id ${mutId}`)
 		if (mutId !== -1) this._store.createMutation("redo", "", { id: mutId })
 	}
 }

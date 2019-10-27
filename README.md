@@ -21,6 +21,8 @@ Kaaya is a delightful javascript library which target on state management and da
 -   Keep an history of mutation and allow to replay them on other object
 -   Allow to undo/redo modification
 -   Keep mutation as plain JS object (serializable)
+-   Allow to regroup mutation as transaction (to give context about changes)
+-   Allow to use async hook (for animation or UI interaction)
 
 ---
 

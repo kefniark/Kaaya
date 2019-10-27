@@ -12,7 +12,7 @@ export class Kaaya {
 	 * @param {*} [data={}]
 	 * @returns {BaseStore}
 	 */
-	public createRawStore(data: any = {}): BaseStore {
+	public createRawStore(data?: any): BaseStore {
 		return new BaseStore(data)
 	}
 
@@ -59,7 +59,7 @@ export class Kaaya {
 	//#endregion KeyStore
 
 	//#region Table Store
-	public createTableStore(data: any = {}): TableStore {
+	public createTableStore(data?: any): TableStore {
 		return new TableStore(data)
 	}
 
@@ -72,22 +72,22 @@ export class Kaaya {
 	}
 	//#endregion Table Store
 
-	public createEntityStore(data: any = {}): EntityStore {
+	public createEntityStore(data?: any): EntityStore {
 		return new EntityStore(data)
 	}
 
-	public createEntityComponentStore(data: any = {}): EntityStore {
+	public createEntityComponentStore(data?: any): EntityStore {
 		const store = this.createEntityStore(data)
-		store.register("Entity", (store, data) => new Entity(store, data))
-		store.register("Transform", (store, data) => new TransformComponent(store, data))
+		store.register("Entity", (store1, data1) => new Entity(store1, data1))
+		store.register("Transform", (store2, data2) => new TransformComponent(store2, data2))
 		return store
 	}
 
 	public createFileFolderStore(data: any = {}): EntityStore {
 		if (!data.meta) data.meta = { selected: "" }
 		const store = this.createEntityStore(data)
-		store.register("File", (store, data) => new EntityFile(store, data))
-		store.register("Folder", (store, data) => new EntityFolder(store, data))
+		store.register("File", (store1, data1) => new EntityFile(store1, data1))
+		store.register("Folder", (store2, data2) => new EntityFolder(store2, data2))
 		return store
 	}
 }

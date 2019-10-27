@@ -37,6 +37,53 @@ test("API", () => {
 	store2.deleteSheet("people")
 })
 
+test("Test Errors", () => {
+	const store = Kaaya.createTableStore()
+	store.createSheet("people")
+
+	// multiple creation
+	expect(() => store.createSheet("people")).toThrow()
+
+	// wrong parameter
+	expect(() => store.createSheet(undefined as any)).toThrow()
+	expect(() => store.getRowById(undefined as any, "1")).toThrow()
+	expect(() => store.getRowById("people", undefined as any)).toThrow()
+	expect(() => store.setRow(undefined as any, "nano", "val")).toThrow()
+	expect(() => store.getCell(undefined as any, "nano", "val")).toThrow()
+	expect(() => store.setCell(undefined as any, "nano", "val", "val")).toThrow()
+	expect(() => store.deleteRow(undefined as any, "nano")).toThrow()
+	expect(() => store.deleteSheet(undefined as any)).toThrow()
+
+	// sheet doesnt exist
+	expect(() => store.getSheet("nano")).toThrow()
+	expect(() => store.addRow("people2", { id: "A", name: "john", age: 12, mail: "john@gmail.com" })).toThrow()
+})
+
+test("JSON File", () => {
+	const jsonData = `
+{
+	"people": [
+		{
+			"id": "A",
+			"name": "john",
+			"age": 12
+		},
+		{
+			"id": "B",
+			"name": "bob",
+			"age": 14
+		}
+	]
+}
+	`
+	const store = Kaaya.createTableStoreFromJSON(jsonData)
+	store.createSheet("youhou")
+	store.addRow("youhou", { id: "tuna", name: "tuna", age: 1, mail: "tuna@fish.com" })
+	store.addRow("youhou", { name: "salmon", age: 2, mail: "salmon@fish.com" })
+
+	expect(store.getCell("youhou", "tuna", "age")).toBe(1)
+	expect(store.stringifyJSON()).toContain('"youhou":')
+})
 test("Yaml File", () => {
 	const yamlData = `
 # This is a comment too

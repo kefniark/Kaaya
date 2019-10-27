@@ -38,6 +38,28 @@ test("API", () => {
 	expect(store.has("user", "name")).toBe(false) // check property was also deleted on store1
 })
 
+test("Test Errors", () => {
+	const store = Kaaya.createKeyStore()
+	store.createSection("user")
+
+	// multiple creation
+	expect(() => store.createSection("user")).toThrow()
+
+	// empty section
+	expect(() => store.createSection(undefined as any)).toThrow()
+	expect(() => store.deleteSection(undefined as any)).toThrow()
+
+	// used not declared section
+	expect(() => store.set("wrongsection", "name", "name")).toThrow()
+	expect(() => store.delete("wrongsection", "name")).toThrow()
+
+	// not valid key
+	expect(() => store.has("wrongsection", undefined as any)).toThrow()
+	expect(() => store.get("wrongsection", undefined as any)).toThrow()
+	expect(() => store.set("wrongsection", undefined as any, 1)).toThrow()
+	expect(() => store.delete("wrongsection", undefined as any)).toThrow()
+})
+
 test("JSON File", () => {
 	const jsonData = `{
 	"SectionOne": {

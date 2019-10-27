@@ -1,4 +1,4 @@
-// [Kaaya]  Build: 0.0.3 - Tuesday, October 22nd, 2019, 9:16:13 PM  
+// [Kaaya]  Build: 0.0.5 - Sunday, October 27th, 2019, 2:29:19 PM  
  (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -14416,12 +14416,16 @@ exports.clone = clone;
 "use strict";
 /* WEBPACK VAR INJECTION */(function(process) {
 Object.defineProperty(exports, "__esModule", { value: true });
+/* istanbul ignore next */
 function now() {
-    if (typeof window !== "undefined") {
-        return Math.round(performance.now());
-    }
-    else {
+    try {
+        if (typeof window !== "undefined") {
+            return Math.round(performance.now());
+        }
         return process.hrtime()[1];
+    }
+    catch (_a) {
+        return 0;
     }
 }
 exports.now = now;
@@ -14439,9 +14443,13 @@ exports.now = now;
 
 "use strict";
 
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
 Object.defineProperty(exports, "__esModule", { value: true });
 const kaaya_1 = __webpack_require__(/*! ./kaaya */ "./src/kaaya.ts");
 exports.default = new kaaya_1.Kaaya();
+__export(__webpack_require__(/*! ./stores */ "./src/stores/index.ts"));
 
 
 /***/ }),
@@ -14469,7 +14477,7 @@ class Kaaya {
      * @param {*} [data={}]
      * @returns {BaseStore}
      */
-    createRawStore(data = {}) {
+    createRawStore(data) {
         return new stores_1.BaseStore(data);
     }
     //#region Key Store
@@ -14511,7 +14519,7 @@ class Kaaya {
     }
     //#endregion KeyStore
     //#region Table Store
-    createTableStore(data = {}) {
+    createTableStore(data) {
         return new stores_1.TableStore(data);
     }
     createTableStoreFromYAML(data) {
@@ -14521,21 +14529,21 @@ class Kaaya {
         return this.createTableStore(JSON.parse(data));
     }
     //#endregion Table Store
-    createEntityStore(data = {}) {
+    createEntityStore(data) {
         return new stores_1.EntityStore(data);
     }
-    createEntityComponentStore(data = {}) {
+    createEntityComponentStore(data) {
         const store = this.createEntityStore(data);
-        store.register("Entity", (store, data) => new entityComponent_1.Entity(store, data));
-        store.register("Transform", (store, data) => new entityComponent_1.TransformComponent(store, data));
+        store.register("Entity", (store1, data1) => new entityComponent_1.Entity(store1, data1));
+        store.register("Transform", (store2, data2) => new entityComponent_1.TransformComponent(store2, data2));
         return store;
     }
     createFileFolderStore(data = {}) {
         if (!data.meta)
             data.meta = { selected: "" };
         const store = this.createEntityStore(data);
-        store.register("File", (store, data) => new entityFile_1.EntityFile(store, data));
-        store.register("Folder", (store, data) => new entityFolder_1.EntityFolder(store, data));
+        store.register("File", (store1, data1) => new entityFile_1.EntityFile(store1, data1));
+        store.register("Folder", (store2, data2) => new entityFolder_1.EntityFolder(store2, data2));
         return store;
     }
 }
@@ -14553,16 +14561,23 @@ exports.Kaaya = Kaaya;
 
 "use strict";
 
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const dataStore_1 = __webpack_require__(/*! ./dataStore */ "./src/stores/dataStore.ts");
 const onChange = __webpack_require__(/*! on-change */ "./node_modules/on-change/index.js");
 const check_1 = __webpack_require__(/*! ../helpers/check */ "./src/helpers/check.ts");
 class BaseStore {
-    // private _updatedObj: any[]
     constructor(data = {}) {
         this._originalData = data;
         this._store = new dataStore_1.DataStore();
-        // this._updatedObj = [this._originalData]
         this._store.evtCreate.attach((mut) => {
             this._store.applyMutation(this._originalData, mut);
         });
@@ -14594,11 +14609,17 @@ class BaseStore {
     get serialize() {
         return this._originalData;
     }
-    transactionStart(meta = {}) {
+    addHookBefore(name, path, promise) {
+        this._store.addHookBefore(name, path, promise);
+    }
+    addHookAfter(name, path, promise) {
+        this._store.addHookAfter(name, path, promise);
+    }
+    transactionStart(meta) {
         this._store.transactionStart(meta);
     }
-    transactionEnd() {
-        this._store.transactionEnd();
+    transactionEnd(path = "", meta) {
+        this._store.transactionEnd(path, meta);
     }
     observe(cb) {
         this._store.evtApply.attach(cb);
@@ -14606,15 +14627,18 @@ class BaseStore {
     sync(history) {
         this._store.sync(this._originalData, history);
     }
+    syncAsync(history) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this._store.syncAsync(this._originalData, history);
+        });
+    }
     undo() {
         const mutId = this._store.nextUndoId;
-        // console.log(`undo id ${mutId}`)
         if (mutId !== -1)
             this._store.createMutation("undo", "", { id: mutId });
     }
     redo() {
         const mutId = this._store.nextRedoId;
-        // console.log(`redo id ${mutId}`)
         if (mutId !== -1)
             this._store.createMutation("redo", "", { id: mutId });
     }
@@ -14633,6 +14657,15 @@ exports.BaseStore = BaseStore;
 
 "use strict";
 
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const nanoid = __webpack_require__(/*! nanoid/non-secure */ "./node_modules/nanoid/non-secure/index.js");
 const time_1 = __webpack_require__(/*! ../helpers/time */ "./src/helpers/time.ts");
@@ -14640,6 +14673,7 @@ const check_1 = __webpack_require__(/*! ../helpers/check */ "./src/helpers/check
 const ts_events_1 = __webpack_require__(/*! ts-events */ "./node_modules/ts-events/dist/lib/index.js");
 class DataStore {
     constructor() {
+        this.hook = [];
         this.mutations = {};
         // transaction
         this.transactionMeta = undefined;
@@ -14647,6 +14681,7 @@ class DataStore {
         // undo / redo
         this.lastUndoIndex = -1;
         this.undoBuffer = [];
+        this.syncQueue = [];
         this.id = nanoid();
         this.evtCreate = new ts_events_1.SyncEvent();
         this.evtApply = new ts_events_1.SyncEvent();
@@ -14734,6 +14769,22 @@ class DataStore {
             this.addHistory(mut);
         };
     }
+    addHookBefore(name, path, promise) {
+        this.hook.push({
+            type: "before",
+            name,
+            path,
+            promise
+        });
+    }
+    addHookAfter(name, path, promise) {
+        this.hook.push({
+            type: "after",
+            name,
+            path,
+            promise
+        });
+    }
     get nextUndoId() {
         if (this.history.length === 0)
             return -1;
@@ -14763,9 +14814,9 @@ class DataStore {
     transactionStart(meta = {}) {
         this.transactionMeta = meta;
     }
-    transactionEnd() {
-        this.createMutation("transaction", "", {
-            meta: this.transactionMeta,
+    transactionEnd(path, meta = {}) {
+        this.createMutation("transaction", path, {
+            meta: Object.assign(this.transactionMeta, meta),
             history: this.transactionHistory
         });
     }
@@ -14793,10 +14844,61 @@ class DataStore {
         this.historyIds.add(mut.id);
         this.evtApply.post(mut);
     }
+    hookBefore(obj, mut) {
+        return __awaiter(this, void 0, void 0, function* () {
+            for (const hook of this.hook) {
+                if (hook.type !== "before")
+                    continue;
+                if (hook.name !== mut.name)
+                    continue;
+                if (hook.path !== mut.path)
+                    continue;
+                yield hook.promise(obj, mut);
+            }
+        });
+    }
+    hookAfter(obj, mut) {
+        return __awaiter(this, void 0, void 0, function* () {
+            for (const hook of this.hook) {
+                if (hook.type !== "after")
+                    continue;
+                if (hook.name !== mut.name)
+                    continue;
+                if (hook.path !== mut.path)
+                    continue;
+                yield hook.promise(obj, mut);
+            }
+        });
+    }
     sync(obj, history) {
         for (const mut of history) {
             this.applyMutation(obj, mut);
         }
+    }
+    syncAsyncExecute(obj, history) {
+        return __awaiter(this, void 0, void 0, function* () {
+            for (const mut of history) {
+                if (this.historyIds.has(mut.id))
+                    continue;
+                yield this.hookBefore(obj, mut);
+                this.applyMutation(obj, mut);
+                yield this.hookAfter(obj, mut);
+            }
+        });
+    }
+    syncAsync(obj, history) {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.syncQueue.push(() => this.syncAsyncExecute(obj, history));
+            if (!this.syncCurrent) {
+                let elem = this.syncQueue.shift();
+                while (!!elem) {
+                    this.syncCurrent = elem;
+                    yield elem();
+                    elem = this.syncQueue.shift();
+                    this.syncCurrent = undefined;
+                }
+            }
+        });
     }
     getHistory() {
         return this.history;

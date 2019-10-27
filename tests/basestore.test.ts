@@ -1,5 +1,5 @@
 /// <reference types="jest" />
-import Kaaya from "../src"
+import Kaaya, { EntityStore } from "../src"
 
 test("Basic", () => {
 	const store = Kaaya.createRawStore({ a: 1, b: 2 })
@@ -31,17 +31,36 @@ test("Basic", () => {
 	expect(store.id).not.toBe(store2.id)
 })
 
-// test("Proxy", () => {
-// 	const store = Kaaya.createRawStore({ a: 1, b: 2 })
-// 	const proxy = store.instantiateProxy()
-// 	const proxy2 = store.instantiateProxy()
+class TestInstance {
+	protected store: EntityStore
+	protected data: any
 
-// 	store.data.b = 3 // generate a `set` mutation
+	constructor(store: EntityStore, data: any) {
+		this.store = store
+		this.data = data
+	}
+}
 
-// 	expect(store.serialize.b).toBe(3) // check the original data are updated
-// 	expect(proxy.b).toBe(3) // check the proxy data are updated too'
-// 	expect(proxy2.b).toBe(3) // check the proxy data are updated too'
-// })
+test("Test Errors", () => {
+	const store = Kaaya.createRawStore()
+
+	// try to undo/redo empty history
+	store.undo()
+	store.redo()
+
+	const storeOther = Kaaya.createEntityStore()
+	storeOther.register("test", (store1, data1) => new TestInstance(store1, data1))
+	storeOther.transactionStart()
+	storeOther.create("test", { name: 1 })
+	storeOther.transactionEnd("test", { moreData: 1 })
+
+	// cannot sync unknown mutation
+	expect(() => store.sync(storeOther.history)).toThrow()
+
+	storeOther.undo()
+
+	expect(() => store.sync(storeOther.history)).toThrow()
+})
 
 test("Transaction ", () => {
 	const store = Kaaya.createRawStore({ a: 1, b: 2 })
@@ -146,4 +165,55 @@ test("Undo Redo Add", () => {
 	expect(store.data.b).toBe(5) // check final values after
 	expect(store.data.c).toBe(undefined)
 	// expect(store2.data.c).toBe(undefined);
+})
+
+test("Undo Redo Add", done => {
+	const store = Kaaya.createRawStore({ a: 1, b: 2 })
+
+	store.data.b = 3 // generate a `set` mutation
+
+	store.transactionStart({ id: "1" })
+	store.data.c = { a: 2, b: 3, c: 4 }
+	store.data.c = { a: 3, b: 4, c: 5 }
+	store.data.c = { a: 4, b: 5, c: 6 }
+	store.transactionEnd("1")
+
+	store.transactionStart({ id: "2" })
+	store.data.c = { a: 2, b: 3, c: 4 }
+	store.data.c = { a: 3, b: 4, c: 5 }
+	store.data.c = { a: 4, b: 5, c: 6 }
+	store.transactionEnd("2")
+
+	let animBefore = 0
+	let animAfter = 0
+
+	const store2 = Kaaya.createRawStore({ a: 1, b: 2 })
+	store2.addHookBefore("transaction", "1", (_obj, _mut) => {
+		return new Promise(function(resolve) {
+			animBefore++
+			setTimeout(resolve, 50)
+		})
+	})
+	store2.addHookBefore("transaction", "1", (_obj, _mut) => {
+		return new Promise(function(resolve) {
+			animBefore++
+			setTimeout(resolve, 50)
+		})
+	})
+	store2.addHookAfter("transaction", "1", (_obj, _mut) => {
+		return new Promise(function(resolve) {
+			animAfter++
+			setTimeout(resolve, 50)
+		})
+	})
+
+	// check only on async is applied
+	store2.syncAsync(store.history).then(() => {
+		expect(animBefore).toBe(2)
+		expect(animAfter).toBe(1)
+		done()
+	})
+
+	store2.syncAsync(store.history)
+	store2.syncAsync(store.history)
 })
