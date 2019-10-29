@@ -1,7 +1,7 @@
 import { TransformComponent, Component } from "./component"
 import { EntityStore } from "../../stores"
 import { IEntityData } from "./interfaces"
-import nanoid = require("nanoid/non-secure")
+import { uid } from "coopa"
 
 export class Entity {
 	get enable() {
@@ -41,7 +41,7 @@ export class Entity {
 	store: EntityStore
 	data: IEntityData
 	dataDefault: IEntityData = {
-		id: nanoid(),
+		id: uid(),
 		name: "entity",
 		parentId: "",
 		childIds: [],

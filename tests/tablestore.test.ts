@@ -84,37 +84,38 @@ test("JSON File", () => {
 	expect(store.getCell("youhou", "tuna", "age")).toBe(1)
 	expect(store.stringifyJSON()).toContain('"youhou":')
 })
-test("Yaml File", () => {
-	const yamlData = `
-# This is a comment too
-people:
-- id: A
-  name: john
-  age: 12
-  mail: john@gmail.com
-- id: B
-  name: bob
-  age: 14
-  mail: bob@gmail.com
 
-monster:
-- name: johnMob
-  atk: 12
-  def: 2
-- name: bobMob
-  atk: 14
-  def: 8
-`
-	// import from ini file
-	const store = Kaaya.createTableStoreFromYAML(yamlData)
-	const store2 = Kaaya.createTableStoreFromYAML(yamlData)
-	store.observe(_mut => store2.sync(store.history))
+// test("Yaml File", () => {
+// 	const yamlData = `
+// # This is a comment too
+// people:
+// - id: A
+//   name: john
+//   age: 12
+//   mail: john@gmail.com
+// - id: B
+//   name: bob
+//   age: 14
+//   mail: bob@gmail.com
 
-	store.createSheet("youhou")
-	store.addRow("youhou", { id: "tuna", name: "tuna", age: 1, mail: "tuna@fish.com" })
-	store.addRow("youhou", { name: "salmon", age: 2, mail: "salmon@fish.com" })
+// monster:
+// - name: johnMob
+//   atk: 12
+//   def: 2
+// - name: bobMob
+//   atk: 14
+//   def: 8
+// `
+// 	// import from ini file
+// 	const store = Kaaya.createTableStoreFromYAML(yamlData)
+// 	const store2 = Kaaya.createTableStoreFromYAML(yamlData)
+// 	store.observe(_mut => store2.sync(store.history))
 
-	expect(store.getCell("youhou", "tuna", "age")).toBe(1)
-	expect(store2.stringifyYAML()).toContain("youhou:")
-	expect(store2.stringifyJSON()).toContain('"youhou":')
-})
+// 	store.createSheet("youhou")
+// 	store.addRow("youhou", { id: "tuna", name: "tuna", age: 1, mail: "tuna@fish.com" })
+// 	store.addRow("youhou", { name: "salmon", age: 2, mail: "salmon@fish.com" })
+
+// 	expect(store.getCell("youhou", "tuna", "age")).toBe(1)
+// 	expect(store2.stringifyYAML()).toContain("youhou:")
+// 	expect(store2.stringifyJSON()).toContain('"youhou":')
+// })

@@ -1,5 +1,5 @@
 import { DataStore } from "./dataStore"
-import onChange = require("on-change")
+import onChange from "on-change"
 import { clone } from "../helpers/check"
 
 export class BaseStore {
@@ -26,7 +26,7 @@ export class BaseStore {
 		this._originalData = data
 		this._store = new DataStore()
 
-		this._store.evtCreate.attach((mut: any) => {
+		this._store.evtCreate.on((mut: any) => {
 			this._store.applyMutation(this._originalData, mut)
 		})
 
@@ -59,7 +59,7 @@ export class BaseStore {
 	}
 
 	public observe(cb: (mut: any) => void): void {
-		this._store.evtApply.attach(cb)
+		this._store.evtApply.on(cb)
 	}
 
 	public sync(history: any[]): void {

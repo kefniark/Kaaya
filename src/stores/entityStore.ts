@@ -1,5 +1,5 @@
 import { BaseStore } from "./baseStore"
-import nanoid = require("nanoid/non-secure")
+import { uid } from "coopa"
 
 export class EntityStore extends BaseStore {
 	factory = new Map<string, (store: EntityStore, data: any) => any>()
@@ -32,7 +32,7 @@ export class EntityStore extends BaseStore {
 	create(classname: string, data: any = {}) {
 		if (!this.factory.has(classname)) throw new Error("unknown")
 
-		const id = data.id ? data.id : nanoid(6)
+		const id = data.id ? data.id : uid(6)
 		data.id = id
 		this.created.add(id)
 		this._store.createMutation("create", id, { classname, ...data })

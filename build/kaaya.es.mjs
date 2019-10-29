@@ -1,7 +1,3 @@
-'use strict';
-
-Object.defineProperty(exports, '__esModule', { value: true });
-
 /**
  * Provide polyfill around Date.now()
  */
@@ -1290,9 +1286,5 @@ class Kaaya {
 
 var index = new Kaaya();
 
-exports.BaseStore = BaseStore;
-exports.DataStore = DataStore;
-exports.EntityStore = EntityStore;
-exports.KeyStore = KeyStore;
-exports.TableStore = TableStore;
-exports.default = index;
+export default index;
+export { BaseStore, DataStore, EntityStore, KeyStore, TableStore };

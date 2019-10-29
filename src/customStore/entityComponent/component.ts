@@ -1,7 +1,7 @@
 import { Vector3, ITransformComponentData, IComponentData } from "./interfaces"
 import { Entity } from "./entity"
 import { EntityStore } from "../../stores"
-import nanoid = require("nanoid/non-secure")
+import { uid } from "coopa"
 
 export class Component {
 	get id() {
@@ -23,7 +23,7 @@ export class Component {
 	protected store: EntityStore
 	protected data: IComponentData
 	dataDefault: IComponentData = {
-		id: nanoid(),
+		id: uid(),
 		parentId: "",
 		type: "",
 		enable: true

@@ -1,6 +1,6 @@
 import { BaseStore } from "./baseStore"
-import { stringify as stringifyYaml } from "yaml"
-import nanoid = require("nanoid/non-secure")
+// import { stringify as stringifyYaml } from "yaml"
+import { uid } from "coopa"
 import { clone } from "../helpers/check"
 
 export interface ITableSheet {
@@ -21,10 +21,10 @@ export class TableStore extends BaseStore {
 
 			for (const row of entries[sheetId]) {
 				const id = data[sheetId].id
-				const uid = row[id] ? row[id] : nanoid(4)
-				row[id] = uid
-				data[sheetId].rows.push(uid)
-				data[sheetId].values[uid] = row
+				const uuid = row[id] ? row[id] : uid(4)
+				row[id] = uuid
+				data[sheetId].rows.push(uuid)
+				data[sheetId].values[uuid] = row
 			}
 		}
 		super(data)
@@ -67,7 +67,7 @@ export class TableStore extends BaseStore {
 	addRow(sheet: string, value: any) {
 		if (!sheet || !value) throw new Error("wrong parameter")
 		const data = this.getSheet(sheet)
-		const id = value[data.id] ? value[data.id] : nanoid(4)
+		const id = value[data.id] ? value[data.id] : uid(4)
 		value[data.id] = id
 		data.rows.push(id)
 		data.values[id] = value
@@ -108,7 +108,7 @@ export class TableStore extends BaseStore {
 		return JSON.stringify(this.getValues(), null, 2)
 	}
 
-	stringifyYAML(): string {
-		return stringifyYaml(this.getValues())
-	}
+	// stringifyYAML(): string {
+	// 	return stringifyYaml(this.getValues())
+	// }
 }

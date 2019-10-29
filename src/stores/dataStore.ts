@@ -1,11 +1,9 @@
-import nanoid = require("nanoid/non-secure")
-import { now } from "../helpers/time"
 import { pathWalk } from "../helpers/check"
-import { SyncEvent } from "ts-events"
+import { uid, perf, Event } from "coopa"
 
 export class DataStore {
-	public evtCreate: SyncEvent<any>
-	public evtApply: SyncEvent<any>
+	public evtCreate: Event<any>
+	public evtApply: Event<any>
 	private hook: {
 		name: string
 		path: string
@@ -59,9 +57,9 @@ export class DataStore {
 	}
 
 	constructor() {
-		this.id = nanoid()
-		this.evtCreate = new SyncEvent()
-		this.evtApply = new SyncEvent()
+		this.id = uid()
+		this.evtCreate = new Event()
+		this.evtApply = new Event()
 		this.history = []
 		this.historyIds = new Set()
 		this.undoMap = new Map()
@@ -171,8 +169,8 @@ export class DataStore {
 	}
 
 	createMutation(name: string, path: string, data: any): any {
-		const mut = { id: nanoid(), time: now(), name, path, data }
-		this.evtCreate.post(mut)
+		const mut = { id: uid(), time: perf(), name, path, data }
+		this.evtCreate.emit(mut)
 		return mut
 	}
 
@@ -184,7 +182,7 @@ export class DataStore {
 		if (!this.mutations[mut.name]) throw new Error(`Unknown mutation ${mut.name}`)
 		this.mutations[mut.name](obj, mut, false)
 		this.historyIds.delete(mut.id)
-		this.evtApply.post(mut)
+		this.evtApply.emit(mut)
 	}
 
 	applyMutation(obj: any, mut: any): void {
@@ -192,7 +190,7 @@ export class DataStore {
 		if (this.historyIds.has(mut.id)) return
 		this.mutations[mut.name](obj, mut)
 		this.historyIds.add(mut.id)
-		this.evtApply.post(mut)
+		this.evtApply.emit(mut)
 	}
 
 	async hookBefore(obj: any, mut: any) {

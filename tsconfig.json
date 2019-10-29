@@ -2,8 +2,8 @@
 	"compilerOptions": {
 		// build
 		"typeRoots": ["node_modules/@types"],
-		"lib": ["es2015", "dom"],
-		"target": "es6",
+		"lib": ["esnext", "dom"],
+		"target": "esnext",
 		"outDir": "./lib",
 		"types": ["node"],
 		"module": "commonjs",
@@ -32,13 +32,6 @@
 		"noImplicitThis": true,
 		"esModuleInterop": true
 	},
-	"include":[
-		"./src/**/*"
-	],
-	"exclude": [
-		"./tests/**/*",
-		"./node_modules",
-		"./build",
-		"./docs"
-	]
+	"include": ["./src/**/*"],
+	"exclude": ["./tests/**/*", "./node_modules", "./build", "./docs"]
 }

@@ -1,6 +1,6 @@
 import { EntityStore } from "../../stores"
 import { IFileData, IFolderData } from "./interfaces"
-import nanoid = require("nanoid/non-secure")
+import { uid } from "coopa"
 import { clone } from "../../helpers/check"
 
 export class EntityFile {
@@ -32,7 +32,7 @@ export class EntityFile {
 	constructor(store: EntityStore, data: IFileData) {
 		this.store = store
 		const defaults: IFileData = {
-			id: nanoid(),
+			id: uid(),
 			parentId: "",
 			icon: "file",
 			label: "file",

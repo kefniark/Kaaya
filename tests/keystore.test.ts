@@ -95,71 +95,71 @@ test("JSON File", () => {
 	expect(result).toContain('"SectionThree":') // check new section are there too
 })
 
-test("Yaml File", () => {
-	const yamlData = `
-# This is a comment too
-SectionOne:
-  key: value
-  integer: 1234
-  real: 3.14
-  string1: 宮本武蔵
-  string2: Case 2
-  multivalue:
-  - first # in-line comments
-  - second # are supported as well
+// test("Yaml File", () => {
+// 	const yamlData = `
+// # This is a comment too
+// SectionOne:
+//   key: value
+//   integer: 1234
+//   real: 3.14
+//   string1: 宮本武蔵
+//   string2: Case 2
+//   multivalue:
+//   - first # in-line comments
+//   - second # are supported as well
 
-# Section: SectionTwo
-SectionTwo:
-  key: new value
-  integer: 1234
-`
-	// import from ini file
-	const iniStore = Kaaya.createKeyStoreFromYAML(yamlData)
+// # Section: SectionTwo
+// SectionTwo:
+//   key: new value
+//   integer: 1234
+// `
+// 	// import from ini file
+// 	const iniStore = Kaaya.createKeyStoreFromYAML(yamlData)
 
-	// check the contents
-	expect(iniStore.data.SectionOne.key).toBe("value")
-	expect(iniStore.data.SectionOne.string1).toBe("宮本武蔵")
-	iniStore.data.SectionOne.string1 = "東京"
-	iniStore.data.SectionThree = { string: "value" }
-	expect(iniStore.data.SectionTwo.integer).toBe(1234)
+// 	// check the contents
+// 	expect(iniStore.data.SectionOne.key).toBe("value")
+// 	expect(iniStore.data.SectionOne.string1).toBe("宮本武蔵")
+// 	iniStore.data.SectionOne.string1 = "東京"
+// 	iniStore.data.SectionThree = { string: "value" }
+// 	expect(iniStore.data.SectionTwo.integer).toBe(1234)
 
-	// export file to a new ini file
-	const result = iniStore.stringifyYAML()
-	expect(result).toContain("東京") // check value where properly changed
-	expect(result).toContain("SectionThree:") // check new section are there too
-})
+// 	// export file to a new ini file
+// 	const result = iniStore.stringifyYAML()
+// 	expect(result).toContain("東京") // check value where properly changed
+// 	expect(result).toContain("SectionThree:") // check new section are there too
+// })
 
-test("Ini File", () => {
-	const iniData = `
-; This is a comment too
+// test("Ini File", () => {
+// 	const iniData = `
+// ; This is a comment too
 
-[SectionOne]
-key = value
-integer = 1234
-real = 3.14
-string1 = 宮本武蔵
-string2 = Case 2
-multivalue[] = first ; in-line comments
-multivalue[] = second  ; are supported as well
+// [SectionOne]
+// key = value
+// integer = 1234
+// real = 3.14
+// string1 = 宮本武蔵
+// string2 = Case 2
+// multivalue[] = first ; in-line comments
+// multivalue[] = second  ; are supported as well
 
-; Section: SectionTwo
-[SectionTwo]
+// ; Section: SectionTwo
+// [SectionTwo]
 
-key = new value
-integer = 1234
-`
-	// import from ini file
-	const iniStore = Kaaya.createKeyStoreFromINI(iniData)
+// key = new value
+// integer = 1234
+// `
+// 	// import from ini file
+// 	const iniStore = Kaaya.createKeyStoreFromINI(iniData)
 
-	// check the contents
-	expect(iniStore.data.SectionOne.key).toBe("value")
-	expect(iniStore.data.SectionOne.string1).toBe("宮本武蔵")
-	iniStore.data.SectionOne.string1 = "東京"
-	iniStore.data.SectionThree = { string: "value" }
-	expect(iniStore.data.SectionTwo.integer).toBe(1234)
+// 	// check the contents
+// 	expect(iniStore.data.SectionOne.key).toBe("value")
+// 	expect(iniStore.data.SectionOne.string1).toBe("宮本武蔵")
+// 	iniStore.data.SectionOne.string1 = "東京"
+// 	iniStore.data.SectionThree = { string: "value" }
+// 	expect(iniStore.data.SectionTwo.integer).toBe(1234)
 
-	// export file to a new ini file
-	const result = iniStore.stringifyINI()
-	expect(result).toContain("東京") // check value where properly changed
-	expect(result).toContain("[SectionThree]") // check new section are there too
-})
+// 	// export file to a new ini file
+// 	const result = iniStore.stringifyINI()
+// 	expect(result).toContain("東京") // check value where properly changed
+// 	expect(result).toContain("[SectionThree]") // check new section are there too
+// })

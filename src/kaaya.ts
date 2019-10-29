@@ -1,5 +1,5 @@
-import { parse as parseIni } from "js-ini"
-import { parse as parseYaml } from "yaml"
+// import { parse as parseIni } from "js-ini"
+// import { parse as parseYaml } from "yaml"
 import { Entity, TransformComponent } from "./customStore/entityComponent"
 import { BaseStore, KeyStore, TableStore, EntityStore } from "./stores"
 import { EntityFolder } from "./customStore/fileFolder/entityFolder"
@@ -33,9 +33,9 @@ export class Kaaya {
 	 * @param {string} data
 	 * @memberof Kaaya
 	 */
-	public createKeyStoreFromINI(data: string): KeyStore {
-		return this.createKeyStore(parseIni(data))
-	}
+	// public createKeyStoreFromINI(data: string): KeyStore {
+	// 	return this.createKeyStore(parseIni(data))
+	// }
 
 	/**
 	 * Create a Keystore from a configuration file (.ini)
@@ -43,9 +43,9 @@ export class Kaaya {
 	 * @param {string} data
 	 * @memberof Kaaya
 	 */
-	public createKeyStoreFromYAML(data: string): KeyStore {
-		return this.createKeyStore(parseYaml(data))
-	}
+	// public createKeyStoreFromYAML(data: string): KeyStore {
+	// 	return this.createKeyStore(parseYaml(data))
+	// }
 
 	/**
 	 * Create a Keystore from a configuration file (.json)
@@ -63,9 +63,9 @@ export class Kaaya {
 		return new TableStore(data)
 	}
 
-	public createTableStoreFromYAML(data: string): TableStore {
-		return this.createTableStore(parseYaml(data))
-	}
+	// public createTableStoreFromYAML(data: string): TableStore {
+	// 	return this.createTableStore(parseYaml(data))
+	// }
 
 	public createTableStoreFromJSON(data: string): TableStore {
 		return this.createTableStore(JSON.parse(data))
