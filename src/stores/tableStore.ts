@@ -1,5 +1,4 @@
 import { BaseStore } from "./baseStore"
-// import { stringify as stringifyYaml } from "yaml"
 import { uid } from "coopa"
 import { clone } from "../helpers/check"
 
@@ -104,11 +103,7 @@ export class TableStore extends BaseStore {
 		delete this.data[name]
 	}
 
-	stringifyJSON(): string {
+	stringify(): string {
 		return JSON.stringify(this.getValues(), null, 2)
 	}
-
-	// stringifyYAML(): string {
-	// 	return stringifyYaml(this.getValues())
-	// }
 }

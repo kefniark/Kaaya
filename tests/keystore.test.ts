@@ -90,7 +90,7 @@ test("JSON File", () => {
 	expect(iniStore.data.SectionTwo.integer).toBe(1234)
 
 	// export file to a new ini file
-	const result = iniStore.stringifyJSON()
+	const result = iniStore.stringify()
 	expect(result).toContain("東京") // check value where properly changed
 	expect(result).toContain('"SectionThree":') // check new section are there too
 })
@@ -114,7 +114,7 @@ test("JSON File", () => {
 //   integer: 1234
 // `
 // 	// import from ini file
-// 	const iniStore = Kaaya.createKeyStoreFromYAML(yamlData)
+// 	const iniStore = KaayaYaml.createKeyStore(yamlData)
 
 // 	// check the contents
 // 	expect(iniStore.data.SectionOne.key).toBe("value")
@@ -124,7 +124,7 @@ test("JSON File", () => {
 // 	expect(iniStore.data.SectionTwo.integer).toBe(1234)
 
 // 	// export file to a new ini file
-// 	const result = iniStore.stringifyYAML()
+// 	const result = KaayaYaml.stringify(iniStore)
 // 	expect(result).toContain("東京") // check value where properly changed
 // 	expect(result).toContain("SectionThree:") // check new section are there too
 // })
@@ -149,7 +149,7 @@ test("JSON File", () => {
 // integer = 1234
 // `
 // 	// import from ini file
-// 	const iniStore = Kaaya.createKeyStoreFromINI(iniData)
+// 	const iniStore = KaayaIni.createKeyStore(iniData)
 
 // 	// check the contents
 // 	expect(iniStore.data.SectionOne.key).toBe("value")
@@ -159,7 +159,7 @@ test("JSON File", () => {
 // 	expect(iniStore.data.SectionTwo.integer).toBe(1234)
 
 // 	// export file to a new ini file
-// 	const result = iniStore.stringifyINI()
+// 	const result = KaayaIni.stringify(iniStore)
 // 	expect(result).toContain("東京") // check value where properly changed
 // 	expect(result).toContain("[SectionThree]") // check new section are there too
 // })

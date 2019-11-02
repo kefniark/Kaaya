@@ -1,5 +1,5 @@
 import { DataStore } from "./dataStore"
-import onChange from "on-change"
+import { onChange } from "coopa"
 import { clone } from "../helpers/check"
 
 export class BaseStore {

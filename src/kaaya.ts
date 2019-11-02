@@ -1,5 +1,3 @@
-// import { parse as parseIni } from "js-ini"
-// import { parse as parseYaml } from "yaml"
 import { Entity, TransformComponent } from "./customStore/entityComponent"
 import { BaseStore, KeyStore, TableStore, EntityStore } from "./stores"
 import { EntityFolder } from "./customStore/fileFolder/entityFolder"
@@ -12,7 +10,7 @@ export class Kaaya {
 	 * @param {*} [data={}]
 	 * @returns {BaseStore}
 	 */
-	public createRawStore(data?: any): BaseStore {
+	public static createRawStore(data?: any): BaseStore {
 		return new BaseStore(data)
 	}
 
@@ -23,29 +21,9 @@ export class Kaaya {
 	 * @param {*} [data={}]
 	 * @returns {KeyStore}
 	 */
-	public createKeyStore(data: any = {}): KeyStore {
+	public static createKeyStore(data: any = {}): KeyStore {
 		return new KeyStore(data)
 	}
-
-	/**
-	 * Create a Keystore from a configuration file (.ini)
-	 *
-	 * @param {string} data
-	 * @memberof Kaaya
-	 */
-	// public createKeyStoreFromINI(data: string): KeyStore {
-	// 	return this.createKeyStore(parseIni(data))
-	// }
-
-	/**
-	 * Create a Keystore from a configuration file (.ini)
-	 *
-	 * @param {string} data
-	 * @memberof Kaaya
-	 */
-	// public createKeyStoreFromYAML(data: string): KeyStore {
-	// 	return this.createKeyStore(parseYaml(data))
-	// }
 
 	/**
 	 * Create a Keystore from a configuration file (.json)
@@ -53,39 +31,35 @@ export class Kaaya {
 	 * @param {string} data
 	 * @memberof Kaaya
 	 */
-	public createKeyStoreFromJSON(data: string): KeyStore {
-		return this.createKeyStore(JSON.parse(data))
+	public static createKeyStoreFromJSON(data: string): KeyStore {
+		return Kaaya.createKeyStore(JSON.parse(data))
 	}
 	//#endregion KeyStore
 
 	//#region Table Store
-	public createTableStore(data?: any): TableStore {
+	public static createTableStore(data?: any): TableStore {
 		return new TableStore(data)
 	}
 
-	// public createTableStoreFromYAML(data: string): TableStore {
-	// 	return this.createTableStore(parseYaml(data))
-	// }
-
-	public createTableStoreFromJSON(data: string): TableStore {
-		return this.createTableStore(JSON.parse(data))
+	public static createTableStoreFromJSON(data: string): TableStore {
+		return Kaaya.createTableStore(JSON.parse(data))
 	}
 	//#endregion Table Store
 
-	public createEntityStore(data?: any): EntityStore {
+	public static createEntityStore(data?: any): EntityStore {
 		return new EntityStore(data)
 	}
 
-	public createEntityComponentStore(data?: any): EntityStore {
-		const store = this.createEntityStore(data)
+	public static createEntityComponentStore(data?: any): EntityStore {
+		const store = Kaaya.createEntityStore(data)
 		store.register("Entity", (store1, data1) => new Entity(store1, data1))
 		store.register("Transform", (store2, data2) => new TransformComponent(store2, data2))
 		return store
 	}
 
-	public createFileFolderStore(data: any = {}): EntityStore {
+	public static createFileFolderStore(data: any = {}): EntityStore {
 		if (!data.meta) data.meta = { selected: "" }
-		const store = this.createEntityStore(data)
+		const store = Kaaya.createEntityStore(data)
 		store.register("File", (store1, data1) => new EntityFile(store1, data1))
 		store.register("Folder", (store2, data2) => new EntityFolder(store2, data2))
 		return store

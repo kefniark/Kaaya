@@ -82,7 +82,7 @@ test("JSON File", () => {
 	store.addRow("youhou", { name: "salmon", age: 2, mail: "salmon@fish.com" })
 
 	expect(store.getCell("youhou", "tuna", "age")).toBe(1)
-	expect(store.stringifyJSON()).toContain('"youhou":')
+	expect(store.stringify()).toContain('"youhou":')
 })
 
 // test("Yaml File", () => {
@@ -107,8 +107,8 @@ test("JSON File", () => {
 //   def: 8
 // `
 // 	// import from ini file
-// 	const store = Kaaya.createTableStoreFromYAML(yamlData)
-// 	const store2 = Kaaya.createTableStoreFromYAML(yamlData)
+// 	const store = KaayaYaml.createTableStore(yamlData)
+// 	const store2 = KaayaYaml.createTableStore(yamlData)
 // 	store.observe(_mut => store2.sync(store.history))
 
 // 	store.createSheet("youhou")
@@ -116,6 +116,6 @@ test("JSON File", () => {
 // 	store.addRow("youhou", { name: "salmon", age: 2, mail: "salmon@fish.com" })
 
 // 	expect(store.getCell("youhou", "tuna", "age")).toBe(1)
-// 	expect(store2.stringifyYAML()).toContain("youhou:")
-// 	expect(store2.stringifyJSON()).toContain('"youhou":')
+// 	expect(KaayaYaml.stringify(store2)).toContain("youhou:")
+// 	expect(store2.stringify()).toContain('"youhou":')
 // })

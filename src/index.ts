@@ -1,5 +1,5 @@
 import { Kaaya } from "./kaaya"
 
-export default new Kaaya()
+export default Kaaya
 
 export * from "./stores"

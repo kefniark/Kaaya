@@ -35,7 +35,7 @@ class Event {
         this.listenersOncer.push(listener);
     }
     off(listener) {
-        var callbackIndex = this.listeners.indexOf(listener);
+        const callbackIndex = this.listeners.indexOf(listener);
         if (callbackIndex > -1)
             this.listeners.splice(callbackIndex, 1);
     }
@@ -59,7 +59,7 @@ const url = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
  * @return {String} uid
  */
 function uid(len = 8) {
-    var id = "";
+    let id = "";
     while (len--) {
         id += url[(Math.random() * 62) | 0];
     }
@@ -74,102 +74,487 @@ var LogLevel;
     LogLevel[LogLevel["OFF"] = 3] = "OFF";
 })(LogLevel || (LogLevel = {}));
 
-Array.prototype.isEmpty = function () {
-    if (this.length === 0) {
-        return true;
-    }
-    return false;
-};
-Array.prototype.clone = function () {
-    return this.slice();
-};
-Array.prototype.first = function () {
-    return this[0];
-};
-Array.prototype.last = function () {
-    return this[this.length - 1];
-};
-Array.prototype.insert = function (index, value) {
-    this.splice(index, 0, value);
-};
-Array.prototype.removeIndex = function (index) {
-    return this.splice(index, 1);
-};
-Array.prototype.remove = function (element) {
-    return this.filter(x => x === element);
-};
-Array.prototype.sum = function () {
-    return this.reduce((prev, curr) => prev + curr);
-};
-Array.prototype.avg = function () {
-    return this.sum() / this.length;
-};
-Array.prototype.random = function () {
-    const index = Math.floor(Math.random() * (Math.floor(this.length - 1) + 1));
-    return this[index];
-};
-Array.prototype.shuffle = function () {
-    var buffer = [], start;
-    for (var i = this.length; i >= this.length && i > 0; i--) {
-        start = Math.floor(Math.random() * this.length);
-        buffer.push(this.splice(start, 1)[0]);
-    }
-    return buffer;
-};
+/**
+ * Method used to create a proxy around some data an get event
+ *
+ * Inspired by `on-change` but simpler (https://github.com/sindresorhus/on-change/)
+ *
+ * @export
+ * @param {*} objToWatch
+ * @param {(prop: string, value?: any, previous?: any) => void} onChangeFunction
+ * @returns {Proxy}
+ */
+function onChange(objToWatch, onChangeFunction) {
+    const map = new WeakMap();
+    const getRootPath = (val) => {
+        const path = map.get(val) || "";
+        return path ? `${path}.` : "";
+    };
+    const handler = {
+        get(target, property, receiver) {
+            const path = getRootPath(target) + property;
+            const value = Reflect.get(target, property, receiver);
+            if (typeof value === "object" && value !== null) {
+                map.set(value, path);
+                return new Proxy(value, handler);
+            }
+            /* istanbul ignore next */
+            return value;
+        },
+        set(target, property, value) {
+            const path = getRootPath(target) + property;
+            const prev = target[property];
+            if (value === prev)
+                return true;
+            const res = Reflect.set(target, property, value);
+            onChangeFunction(path, value, prev);
+            return res;
+        },
+        deleteProperty(target, property) {
+            const path = getRootPath(target) + property;
+            const prev = target[property];
+            if (map.has(target))
+                map.delete(target);
+            const res = Reflect.deleteProperty(target, property);
+            onChangeFunction(path, undefined, prev);
+            return res;
+        }
+    };
+    map.set(objToWatch, "");
+    return new Proxy(objToWatch, handler);
+}
+let ARRAY_TYPE = Array;
 
-String.isNullOrEmpty = function (val) {
-    if (val === undefined || val === null || val.trim() === "") {
-        return true;
+/* istanbul ignore file */
+/**
+ * 3x3 Matrix
+ * @module mat3
+ */
+/**
+ * Creates a new identity mat3
+ *
+ * @returns {mat3} a new 3x3 matrix
+ */
+function create$1() {
+    let out = new ARRAY_TYPE(9);
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+    out[5] = 0;
+    out[6] = 0;
+    out[7] = 0;
+    out[0] = 1;
+    out[4] = 1;
+    out[8] = 1;
+    return out;
+}
+
+/* istanbul ignore file */
+/**
+ * 3 Dimensional Vector
+ * @module vec3
+ */
+/**
+ * Creates a new, empty vec3
+ *
+ * @returns {vec3} a new 3D vector
+ */
+function create$3() {
+    let out = new ARRAY_TYPE(3);
+    out[0] = 0;
+    out[1] = 0;
+    out[2] = 0;
+    return out;
+}
+/**
+ * Calculates the length of a vec3
+ *
+ * @param {vec3} a vector to calculate length of
+ * @returns {Number} length of a
+ */
+function length(a) {
+    let x = a[0];
+    let y = a[1];
+    let z = a[2];
+    return Math.hypot(x, y, z);
+}
+/**
+ * Creates a new vec3 initialized with the given values
+ *
+ * @param {Number} x X component
+ * @param {Number} y Y component
+ * @param {Number} z Z component
+ * @returns {vec3} a new 3D vector
+ */
+function fromValues$1(x, y, z) {
+    let out = new ARRAY_TYPE(3);
+    out[0] = x;
+    out[1] = y;
+    out[2] = z;
+    return out;
+}
+/**
+ * Normalize a vec3
+ *
+ * @param {vec3} out the receiving vector
+ * @param {vec3} a vector to normalize
+ * @returns {vec3} out
+ */
+function normalize(out, a) {
+    let x = a[0];
+    let y = a[1];
+    let z = a[2];
+    let len = x * x + y * y + z * z;
+    if (len > 0) {
+        //TODO: evaluate use of glm_invsqrt here?
+        len = 1 / Math.sqrt(len);
     }
-    return false;
-};
-String.prototype.capitalize = function () {
-    if (this.length == 1) {
-        return this.toUpperCase();
-    }
-    else if (this.length > 0) {
-        let regex = /^(\(|\[|"|')/;
-        if (regex.test(this)) {
-            return this.substring(0, 2).toUpperCase() + this.substring(2);
+    out[0] = a[0] * len;
+    out[1] = a[1] * len;
+    out[2] = a[2] * len;
+    return out;
+}
+/**
+ * Calculates the dot product of two vec3's
+ *
+ * @param {vec3} a the first operand
+ * @param {vec3} b the second operand
+ * @returns {Number} dot product of a and b
+ */
+function dot(a, b) {
+    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+}
+/**
+ * Computes the cross product of two vec3's
+ *
+ * @param {vec3} out the receiving vector
+ * @param {vec3} a the first operand
+ * @param {vec3} b the second operand
+ * @returns {vec3} out
+ */
+function cross(out, a, b) {
+    let ax = a[0], ay = a[1], az = a[2];
+    let bx = b[0], by = b[1], bz = b[2];
+    out[0] = ay * bz - az * by;
+    out[1] = az * bx - ax * bz;
+    out[2] = ax * by - ay * bx;
+    return out;
+}
+/**
+ * Alias for {@link vec3.length}
+ * @function
+ */
+const len = length;
+/**
+ * Perform some operation over an array of vec3s.
+ *
+ * @param {Array} a the array of vectors to iterate over
+ * @param {Number} stride Number of elements between the start of each vec3. If 0 assumes tightly packed
+ * @param {Number} offset Number of elements to skip at the beginning of the array
+ * @param {Number} count Number of vec3s to iterate over. If 0 iterates over entire array
+ * @param {Function} fn Function to call for each vector in the array
+ * @param {Object} [arg] additional argument to pass to fn
+ * @returns {Array} a
+ * @function
+ */
+const forEach$1 = (function () {
+    let vec = create$3();
+    return function (a, stride, offset, count, fn, arg) {
+        let i, l;
+        if (!stride) {
+            stride = 3;
+        }
+        if (!offset) {
+            offset = 0;
+        }
+        if (count) {
+            l = Math.min(count * stride + offset, a.length);
         }
         else {
-            return this.substring(0, 1).toUpperCase() + this.substring(1);
+            l = a.length;
         }
-    }
-    return this;
-};
-String.prototype.capitalizeWords = function () {
-    let regexp = /\s/;
-    let words = this.split(regexp);
-    if (words.length == 1) {
-        return words[0].capitalize();
-    }
-    else if (words.length > 1) {
-        let result = "";
-        for (let i = 0; i < words.length; i++) {
-            if (words[i].capitalize() !== null) {
-                result += words[i].capitalize() + " ";
-            }
+        for (i = offset; i < l; i += stride) {
+            vec[0] = a[i];
+            vec[1] = a[i + 1];
+            vec[2] = a[i + 2];
+            fn(vec, vec, arg);
+            a[i] = vec[0];
+            a[i + 1] = vec[1];
+            a[i + 2] = vec[2];
         }
-        result.trim();
-        return result;
+        return a;
+    };
+})();
+
+/* istanbul ignore file */
+/**
+ * 4 Dimensional Vector
+ * @module vec4
+ */
+/**
+ * Creates a new, empty vec4
+ *
+ * @returns {vec4} a new 4D vector
+ */
+function create$4() {
+    let out = new ARRAY_TYPE(4);
+    out[0] = 0;
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+    return out;
+}
+/**
+ * Normalize a vec4
+ *
+ * @param {vec4} out the receiving vector
+ * @param {vec4} a vector to normalize
+ * @returns {vec4} out
+ */
+function normalize$1(out, a) {
+    let x = a[0];
+    let y = a[1];
+    let z = a[2];
+    let w = a[3];
+    let len = x * x + y * y + z * z + w * w;
+    if (len > 0) {
+        len = 1 / Math.sqrt(len);
     }
-    return this;
-};
-String.prototype.contains = function (val) {
-    if (this.indexOf(val) !== -1) {
-        return true;
+    out[0] = x * len;
+    out[1] = y * len;
+    out[2] = z * len;
+    out[3] = w * len;
+    return out;
+}
+/**
+ * Perform some operation over an array of vec4s.
+ *
+ * @param {Array} a the array of vectors to iterate over
+ * @param {Number} stride Number of elements between the start of each vec4. If 0 assumes tightly packed
+ * @param {Number} offset Number of elements to skip at the beginning of the array
+ * @param {Number} count Number of vec4s to iterate over. If 0 iterates over entire array
+ * @param {Function} fn Function to call for each vector in the array
+ * @param {Object} [arg] additional argument to pass to fn
+ * @returns {Array} a
+ * @function
+ */
+const forEach$2 = (function () {
+    let vec = create$4();
+    return function (a, stride, offset, count, fn, arg) {
+        let i, l;
+        if (!stride) {
+            stride = 4;
+        }
+        if (!offset) {
+            offset = 0;
+        }
+        if (count) {
+            l = Math.min(count * stride + offset, a.length);
+        }
+        else {
+            l = a.length;
+        }
+        for (i = offset; i < l; i += stride) {
+            vec[0] = a[i];
+            vec[1] = a[i + 1];
+            vec[2] = a[i + 2];
+            vec[3] = a[i + 3];
+            fn(vec, vec, arg);
+            a[i] = vec[0];
+            a[i + 1] = vec[1];
+            a[i + 2] = vec[2];
+            a[i + 3] = vec[3];
+        }
+        return a;
+    };
+})();
+/**
+ * Sets a quat from the given angle and rotation axis,
+ * then returns it.
+ *
+ * @param {quat} out the receiving quaternion
+ * @param {vec3} axis the axis around which to rotate
+ * @param {Number} rad the angle in radians
+ * @returns {quat} out
+ **/
+function setAxisAngle(out, axis, rad) {
+    rad = rad * 0.5;
+    let s = Math.sin(rad);
+    out[0] = s * axis[0];
+    out[1] = s * axis[1];
+    out[2] = s * axis[2];
+    out[3] = Math.cos(rad);
+    return out;
+}
+/**
+ * Creates a quaternion from the given 3x3 rotation matrix.
+ *
+ * NOTE: The resultant quaternion is not normalized, so you should be sure
+ * to renormalize the quaternion yourself where necessary.
+ *
+ * @param {quat} out the receiving quaternion
+ * @param {mat3} m rotation matrix
+ * @returns {quat} out
+ * @function
+ */
+function fromMat3(out, m) {
+    // Algorithm in Ken Shoemake's article in 1987 SIGGRAPH course notes
+    // article "Quaternion Calculus and Fast Animation".
+    let fTrace = m[0] + m[4] + m[8];
+    let fRoot;
+    if (fTrace > 0.0) {
+        // |w| > 1/2, may as well choose w > 1/2
+        fRoot = Math.sqrt(fTrace + 1.0); // 2w
+        out[3] = 0.5 * fRoot;
+        fRoot = 0.5 / fRoot; // 1/(4w)
+        out[0] = (m[5] - m[7]) * fRoot;
+        out[1] = (m[6] - m[2]) * fRoot;
+        out[2] = (m[1] - m[3]) * fRoot;
     }
-    return false;
-};
-String.prototype.slugify = function (lower = true) {
-    if (!lower) {
-        return this.toLowerCase()
-            .normalize()
-            .replace(/[^a-z0-9]/gi, "-");
+    else {
+        // |w| <= 1/2
+        let i = 0;
+        if (m[4] > m[0])
+            i = 1;
+        if (m[8] > m[i * 3 + i])
+            i = 2;
+        let j = (i + 1) % 3;
+        let k = (i + 2) % 3;
+        fRoot = Math.sqrt(m[i * 3 + i] - m[j * 3 + j] - m[k * 3 + k] + 1.0);
+        out[i] = 0.5 * fRoot;
+        fRoot = 0.5 / fRoot;
+        out[3] = (m[j * 3 + k] - m[k * 3 + j]) * fRoot;
+        out[j] = (m[j * 3 + i] + m[i * 3 + j]) * fRoot;
+        out[k] = (m[k * 3 + i] + m[i * 3 + k]) * fRoot;
     }
-    return this.normalize().replace(/[^a-z0-9]/gi, "-");
-};
+    return out;
+}
+/**
+ * Normalize a quat
+ *
+ * @param {quat} out the receiving quaternion
+ * @param {quat} a quaternion to normalize
+ * @returns {quat} out
+ * @function
+ */
+const normalize$2 = normalize$1;
+/**
+ * Sets a quaternion to represent the shortest rotation from one
+ * vector to another.
+ *
+ * Both vectors are assumed to be unit length.
+ *
+ * @param {quat} out the receiving quaternion.
+ * @param {vec3} a the initial vector
+ * @param {vec3} b the destination vector
+ * @returns {quat} out
+ */
+const rotationTo = (function () {
+    let tmpvec3 = create$3();
+    let xUnitVec3 = fromValues$1(1, 0, 0);
+    let yUnitVec3 = fromValues$1(0, 1, 0);
+    return function (out, a, b) {
+        let dot$1 = dot(a, b);
+        if (dot$1 < -0.999999) {
+            cross(tmpvec3, xUnitVec3, a);
+            if (len(tmpvec3) < 0.000001)
+                cross(tmpvec3, yUnitVec3, a);
+            normalize(tmpvec3, tmpvec3);
+            setAxisAngle(out, tmpvec3, Math.PI);
+            return out;
+        }
+        else if (dot$1 > 0.999999) {
+            out[0] = 0;
+            out[1] = 0;
+            out[2] = 0;
+            out[3] = 1;
+            return out;
+        }
+        else {
+            cross(tmpvec3, a, b);
+            out[0] = tmpvec3[0];
+            out[1] = tmpvec3[1];
+            out[2] = tmpvec3[2];
+            out[3] = 1 + dot$1;
+            return normalize$2(out, out);
+        }
+    };
+})();
+/**
+ * Sets the specified quaternion with values corresponding to the given
+ * axes. Each axis is a vec3 and is expected to be unit length and
+ * perpendicular to all other specified axes.
+ *
+ * @param {vec3} view  the vector representing the viewing direction
+ * @param {vec3} right the vector representing the local "right" direction
+ * @param {vec3} up    the vector representing the local "up" direction
+ * @returns {quat} out
+ */
+const setAxes = (function () {
+    let matr = create$1();
+    return function (out, view, right, up) {
+        matr[0] = right[0];
+        matr[3] = right[1];
+        matr[6] = right[2];
+        matr[1] = up[0];
+        matr[4] = up[1];
+        matr[7] = up[2];
+        matr[2] = -view[0];
+        matr[5] = -view[1];
+        matr[8] = -view[2];
+        return normalize$2(out, fromMat3(out, matr));
+    };
+})();
+
+/* istanbul ignore file */
+/**
+ * 2 Dimensional Vector
+ * @module vec2
+ */
+/**
+ * Creates a new, empty vec2
+ *
+ * @returns {vec2} a new 2D vector
+ */
+function create$7() {
+    let out = new ARRAY_TYPE(2);
+    out[0] = 0;
+    out[1] = 0;
+    return out;
+}
+/**
+ * Perform some operation over an array of vec2s.
+ *
+ * @param {Array} a the array of vectors to iterate over
+ * @param {Number} stride Number of elements between the start of each vec2. If 0 assumes tightly packed
+ * @param {Number} offset Number of elements to skip at the beginning of the array
+ * @param {Number} count Number of vec2s to iterate over. If 0 iterates over entire array
+ * @param {Function} fn Function to call for each vector in the array
+ * @param {Object} [arg] additional argument to pass to fn
+ * @returns {Array} a
+ * @function
+ */
+const forEach$3 = (function () {
+    let vec = create$7();
+    return function (a, stride, offset, count, fn, arg) {
+        let i, l;
+        if (!stride) {
+            stride = 2;
+        }
+        if (!offset) {
+            offset = 0;
+        }
+        l = count ? Math.min(count * stride + offset, a.length) : a.length;
+        for (i = offset; i < l; i += stride) {
+            vec[0] = a[i];
+            vec[1] = a[i + 1];
+            fn(vec, vec, arg);
+            a[i] = vec[0];
+            a[i + 1] = vec[1];
+        }
+        return a;
+    };
+})();
 
 class Entity {
     constructor(store, data) {
@@ -568,282 +953,6 @@ class DataStore {
     }
 }
 
-const PATH_SEPARATOR = '.';
-const TARGET = Symbol('target');
-const UNSUBSCRIBE = Symbol('unsubscribe');
-
-const isPrimitive = value => value === null || (typeof value !== 'object' && typeof value !== 'function');
-
-const isBuiltinWithoutMutableMethods = value => value instanceof RegExp || value instanceof Number;
-
-const isBuiltinWithMutableMethods = value => value instanceof Date;
-
-const concatPath = (path, property) => {
-	if (property && property.toString) {
-		if (path) {
-			path += PATH_SEPARATOR;
-		}
-
-		path += property.toString();
-	}
-
-	return path;
-};
-
-const walkPath = (path, callback) => {
-	let index;
-
-	while (path) {
-		index = path.indexOf(PATH_SEPARATOR);
-
-		if (index === -1) {
-			index = path.length;
-		}
-
-		callback(path.slice(0, index));
-
-		path = path.slice(index + 1);
-	}
-};
-
-const shallowClone = value => {
-	if (Array.isArray(value)) {
-		return value.slice();
-	}
-
-	return Object.assign({}, value);
-};
-
-const onChange = (object, onChange, options = {}) => {
-	const proxyTarget = Symbol('ProxyTarget');
-	let inApply = false;
-	let changed = false;
-	let applyPath;
-	let applyPrevious;
-	let isUnsubscribed = false;
-	const equals = options.equals || Object.is;
-	let propCache = new WeakMap();
-	let pathCache = new WeakMap();
-	let proxyCache = new WeakMap();
-
-	const handleChange = (path, property, previous, value) => {
-		if (isUnsubscribed) {
-			return;
-		}
-
-		if (!inApply) {
-			onChange(concatPath(path, property), value, previous);
-			return;
-		}
-
-		if (inApply && applyPrevious && previous !== undefined && value !== undefined && property !== 'length') {
-			let item = applyPrevious;
-
-			if (path !== applyPath) {
-				path = path.replace(applyPath, '').slice(1);
-
-				walkPath(path, key => {
-					item[key] = shallowClone(item[key]);
-					item = item[key];
-				});
-			}
-
-			item[property] = previous;
-		}
-
-		changed = true;
-	};
-
-	const getOwnPropertyDescriptor = (target, property) => {
-		let props = propCache ? propCache.get(target) : undefined;
-
-		if (props) {
-			return props;
-		}
-
-		props = new Map();
-		propCache.set(target, props);
-
-		let prop = props.get(property);
-		if (!prop) {
-			prop = Reflect.getOwnPropertyDescriptor(target, property);
-			props.set(property, prop);
-		}
-
-		return prop;
-	};
-
-	const invalidateCachedDescriptor = (target, property) => {
-		const props = propCache ? propCache.get(target) : undefined;
-
-		if (props) {
-			props.delete(property);
-		}
-	};
-
-	const buildProxy = (value, path) => {
-		if (isUnsubscribed) {
-			return value;
-		}
-
-		pathCache.set(value, path);
-
-		let proxy = proxyCache.get(value);
-
-		if (proxy === undefined) {
-			proxy = new Proxy(value, handler);
-			proxyCache.set(value, proxy);
-		}
-
-		return proxy;
-	};
-
-	const unsubscribe = target => {
-		isUnsubscribed = true;
-		propCache = null;
-		pathCache = null;
-		proxyCache = null;
-
-		return target;
-	};
-
-	const ignoreChange = property => {
-		return isUnsubscribed || (options.ignoreSymbols === true && typeof property === 'symbol');
-	};
-
-	const handler = {
-		get(target, property, receiver) {
-			if (property === proxyTarget || property === TARGET) {
-				return target;
-			}
-
-			if (property === UNSUBSCRIBE && pathCache.get(target) === '') {
-				return unsubscribe(target);
-			}
-
-			const value = Reflect.get(target, property, receiver);
-			if (
-				isPrimitive(value) ||
-				isBuiltinWithoutMutableMethods(value) ||
-				property === 'constructor' ||
-				options.isShallow === true
-			) {
-				return value;
-			}
-
-			// Preserve invariants
-			const descriptor = getOwnPropertyDescriptor(target, property);
-			if (descriptor && !descriptor.configurable) {
-				if (descriptor.set && !descriptor.get) {
-					return undefined;
-				}
-
-				if (descriptor.writable === false) {
-					return value;
-				}
-			}
-
-			return buildProxy(value, concatPath(pathCache.get(target), property));
-		},
-
-		set(target, property, value, receiver) {
-			if (value && value[proxyTarget] !== undefined) {
-				value = value[proxyTarget];
-			}
-
-			const ignore = ignoreChange(property);
-			const previous = ignore ? null : Reflect.get(target, property, receiver);
-			const result = Reflect.set(target[proxyTarget] || target, property, value);
-
-			if (!ignore && !equals(previous, value)) {
-				handleChange(pathCache.get(target), property, previous, value);
-			}
-
-			return result;
-		},
-
-		defineProperty(target, property, descriptor) {
-			const result = Reflect.defineProperty(target, property, descriptor);
-
-			if (!ignoreChange(property)) {
-				invalidateCachedDescriptor(target, property);
-
-				handleChange(pathCache.get(target), property, undefined, descriptor.value);
-			}
-
-			return result;
-		},
-
-		deleteProperty(target, property) {
-			if (!Reflect.has(target, property)) {
-				return true;
-			}
-
-			const ignore = ignoreChange(property);
-			const previous = ignore ? null : Reflect.get(target, property);
-			const result = Reflect.deleteProperty(target, property);
-
-			if (!ignore) {
-				invalidateCachedDescriptor(target, property);
-
-				handleChange(pathCache.get(target), property, previous);
-			}
-
-			return result;
-		},
-
-		apply(target, thisArg, argumentsList) {
-			const compare = isBuiltinWithMutableMethods(thisArg);
-
-			if (compare) {
-				thisArg = thisArg[proxyTarget];
-			}
-
-			if (!inApply) {
-				inApply = true;
-
-				if (compare) {
-					applyPrevious = thisArg.valueOf();
-				}
-
-				if (Array.isArray(thisArg) || toString.call(thisArg) === '[object Object]') {
-					applyPrevious = shallowClone(thisArg[proxyTarget]);
-				}
-
-				applyPath = pathCache.get(target);
-				applyPath = applyPath.slice(0, Math.max(applyPath.lastIndexOf(PATH_SEPARATOR), 0));
-
-				const result = Reflect.apply(target, thisArg, argumentsList);
-
-				inApply = false;
-
-				if (changed || (compare && !equals(applyPrevious, thisArg.valueOf()))) {
-					handleChange(applyPath, '', applyPrevious, thisArg[proxyTarget] || thisArg);
-					applyPrevious = null;
-					changed = false;
-				}
-
-				return result;
-			}
-
-			return Reflect.apply(target, thisArg, argumentsList);
-		}
-	};
-
-	const proxy = buildProxy(object, '');
-	onChange = onChange.bind(proxy);
-
-	return proxy;
-};
-
-onChange.target = proxy => proxy[TARGET] || proxy;
-onChange.unsubscribe = proxy => proxy[UNSUBSCRIBE] || proxy;
-
-var onChange_1 = onChange;
-// TODO: Remove this for the next major release
-var default_1 = onChange;
-onChange_1.default = default_1;
-
 class BaseStore {
     constructor(data = {}) {
         this._originalData = data;
@@ -851,7 +960,7 @@ class BaseStore {
         this._store.evtCreate.on((mut) => {
             this._store.applyMutation(this._originalData, mut);
         });
-        this._data = onChange_1(this._originalData, (path, value, previousValue) => {
+        this._data = onChange(this._originalData, (path, value, previousValue) => {
             if (previousValue === undefined) {
                 this._store.createMutation("add", path, { value, type: typeof value });
             }
@@ -961,8 +1070,6 @@ class EntityStore extends BaseStore {
     }
 }
 
-// import { stringify as stringifyIni } from "js-ini"
-// import { stringify as stringifyYaml } from "yaml"
 class KeyStore extends BaseStore {
     createSection(name) {
         if (!name)
@@ -1004,7 +1111,7 @@ class KeyStore extends BaseStore {
             throw new Error("wrong parameter");
         delete this.data[name];
     }
-    stringifyJSON() {
+    stringify() {
         return JSON.stringify(this.data, null, 2);
     }
 }
@@ -1102,7 +1209,7 @@ class TableStore extends BaseStore {
             throw new Error("wrong parameter");
         delete this.data[name];
     }
-    stringifyJSON() {
+    stringify() {
         return JSON.stringify(this.getValues(), null, 2);
     }
 }
@@ -1209,7 +1316,6 @@ class EntityFolder extends EntityFile {
     }
 }
 
-// import { parse as parseIni } from "js-ini"
 class Kaaya {
     /**
      * Create a Base Store (basic store without helpers or predefined structure)
@@ -1217,7 +1323,7 @@ class Kaaya {
      * @param {*} [data={}]
      * @returns {BaseStore}
      */
-    createRawStore(data) {
+    static createRawStore(data) {
         return new BaseStore(data);
     }
     //#region Key Store
@@ -1227,72 +1333,49 @@ class Kaaya {
      * @param {*} [data={}]
      * @returns {KeyStore}
      */
-    createKeyStore(data = {}) {
+    static createKeyStore(data = {}) {
         return new KeyStore(data);
     }
-    /**
-     * Create a Keystore from a configuration file (.ini)
-     *
-     * @param {string} data
-     * @memberof Kaaya
-     */
-    // public createKeyStoreFromINI(data: string): KeyStore {
-    // 	return this.createKeyStore(parseIni(data))
-    // }
-    /**
-     * Create a Keystore from a configuration file (.ini)
-     *
-     * @param {string} data
-     * @memberof Kaaya
-     */
-    // public createKeyStoreFromYAML(data: string): KeyStore {
-    // 	return this.createKeyStore(parseYaml(data))
-    // }
     /**
      * Create a Keystore from a configuration file (.json)
      *
      * @param {string} data
      * @memberof Kaaya
      */
-    createKeyStoreFromJSON(data) {
-        return this.createKeyStore(JSON.parse(data));
+    static createKeyStoreFromJSON(data) {
+        return Kaaya.createKeyStore(JSON.parse(data));
     }
     //#endregion KeyStore
     //#region Table Store
-    createTableStore(data) {
+    static createTableStore(data) {
         return new TableStore(data);
     }
-    // public createTableStoreFromYAML(data: string): TableStore {
-    // 	return this.createTableStore(parseYaml(data))
-    // }
-    createTableStoreFromJSON(data) {
-        return this.createTableStore(JSON.parse(data));
+    static createTableStoreFromJSON(data) {
+        return Kaaya.createTableStore(JSON.parse(data));
     }
     //#endregion Table Store
-    createEntityStore(data) {
+    static createEntityStore(data) {
         return new EntityStore(data);
     }
-    createEntityComponentStore(data) {
-        const store = this.createEntityStore(data);
+    static createEntityComponentStore(data) {
+        const store = Kaaya.createEntityStore(data);
         store.register("Entity", (store1, data1) => new Entity(store1, data1));
         store.register("Transform", (store2, data2) => new TransformComponent(store2, data2));
         return store;
     }
-    createFileFolderStore(data = {}) {
+    static createFileFolderStore(data = {}) {
         if (!data.meta)
             data.meta = { selected: "" };
-        const store = this.createEntityStore(data);
+        const store = Kaaya.createEntityStore(data);
         store.register("File", (store1, data1) => new EntityFile(store1, data1));
         store.register("Folder", (store2, data2) => new EntityFolder(store2, data2));
         return store;
     }
 }
 
-var index = new Kaaya();
-
 exports.BaseStore = BaseStore;
 exports.DataStore = DataStore;
 exports.EntityStore = EntityStore;
 exports.KeyStore = KeyStore;
 exports.TableStore = TableStore;
-exports.default = index;
+exports.default = Kaaya;

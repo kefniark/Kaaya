@@ -1,6 +1,4 @@
 import { BaseStore } from "./baseStore"
-// import { stringify as stringifyIni } from "js-ini"
-// import { stringify as stringifyYaml } from "yaml"
 
 export class KeyStore extends BaseStore {
 	createSection(name: string): void {
@@ -38,15 +36,7 @@ export class KeyStore extends BaseStore {
 		delete this.data[name]
 	}
 
-	stringifyJSON(): string {
+	stringify(): string {
 		return JSON.stringify(this.data, null, 2)
 	}
-
-	// stringifyINI(): string {
-	// 	return stringifyIni(this.data)
-	// }
-
-	// stringifyYAML(): string {
-	// 	return stringifyYaml(this.data)
-	// }
 }

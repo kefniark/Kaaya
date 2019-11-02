@@ -19,6 +19,7 @@ export default {
 		commonjs(),
 		serve({
 			open: true,
+			openPage: "/samples/",
 			contentBase: ["."],
 			port: 8080,
 			verbose: true
