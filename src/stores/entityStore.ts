@@ -30,7 +30,7 @@ export class EntityStore extends BaseStore {
 	}
 
 	create(classname: string, data: any = {}) {
-		if (!this.factory.has(classname)) throw new Error("unknown")
+		if (!this.factory.has(classname)) throw new Error("unknown class " + classname)
 
 		const id = data.id ? data.id : uid(6)
 		data.id = id
