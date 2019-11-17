@@ -234,7 +234,7 @@ export class DataStore {
 
 		if (!this.syncCurrent) {
 			let elem = this.syncQueue.shift()
-			while (!!elem) {
+			while (elem) {
 				this.syncCurrent = elem
 				await elem()
 				elem = this.syncQueue.shift()

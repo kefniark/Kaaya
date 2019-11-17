@@ -9,13 +9,12 @@ export default {
 	output: [
 		{
 			file: pkg.module,
-			format: "es"
+			format: "esm"
 		}
 	],
-	external: [...Object.keys(pkg.peerDependencies || {})],
 	plugins: [
 		typescript(),
-		resolve({ jsnext: true }),
+		resolve(),
 		commonjs(),
 		serve({
 			open: true,

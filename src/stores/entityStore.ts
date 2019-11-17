@@ -45,7 +45,7 @@ export class EntityStore extends BaseStore {
 		delete this.data[id]
 	}
 
-	getData(id: string, event: boolean = true): any {
+	getData(id: string, event = true): any {
 		return event ? this.data[id] : this._originalData[id]
 	}
 

@@ -1,15 +1,17 @@
-    Still under development, do not use except for testing :P
-
 # Kaaya
 
+Kaaya is a delightful javascript library which target on state management and data synchronization between Applications.
+
+-   **Samples**: [Here](https://kefniark.github.io/Kaaya/samples)
+
+[![Build Status](https://github.com/kefniark/Kaaya/workflows/Build%20CI/badge.svg)](https://github.com/kefniark/Kaaya/actions)
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/kefniark/Kaaya.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/kefniark/Kaaya/alerts/)
 [![NPM Version](https://img.shields.io/npm/v/kaaya.svg)](https://npmjs.org/package/kaaya)
 [![NPM Download](https://img.shields.io/npm/dm/kaaya.svg)](https://npmjs.org/package/kaaya)
-[![Build Status](https://travis-ci.org/kefniark/Kaaya.svg?branch=master)](https://travis-ci.org/kefniark/Kaaya)
 [![Coverage Status](https://coveralls.io/repos/github/kefniark/Kaaya/badge.svg?branch=master)](https://coveralls.io/github/kefniark/Kaaya?branch=master)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/c0fc8bf9f62a4067a2d1454c1eba454e)](https://www.codacy.com/manual/kefniark/Kaaya?utm_source=github.com&utm_medium=referral&utm_content=kefniark/Kaaya&utm_campaign=Badge_Grade)
 [![License](https://img.shields.io/npm/l/kaaya.svg)](https://npmjs.org/package/kaaya)
 
-Kaaya is a delightful javascript library which target on state management and data synchronization between Applications.
+> Still under development, do not use except for testing :P
 
 -   Support different data structure (and their usual format):
     -   **Key Value**: Often used to store configuration (`.ini`, `.yaml`, `.json`)
@@ -23,10 +25,6 @@ Kaaya is a delightful javascript library which target on state management and da
 -   Keep mutation as plain JS object (serializable)
 -   Allow to regroup mutation as transaction (to give context about changes)
 -   Allow to use async hook (for animation or UI interaction)
-
----
-
-* **Samples**: [Here](https://kefniark.github.io/Kaaya/samples)
 
 ---
 

@@ -2,6 +2,7 @@ import { Vector3, ITransformComponentData, IComponentData } from "./interfaces"
 import { Entity } from "./entity"
 import { EntityStore } from "../../stores"
 import { uid } from "coopa"
+/* eslint @typescript-eslint/no-empty-function: 0 */
 
 export class Component {
 	get id() {

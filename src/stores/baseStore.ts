@@ -54,7 +54,7 @@ export class BaseStore {
 		this._store.transactionStart(meta)
 	}
 
-	public transactionEnd(path: string = "", meta?: any): void {
+	public transactionEnd(path = "", meta?: any): void {
 		this._store.transactionEnd(path, meta)
 	}
 

@@ -42,7 +42,7 @@ export class TableStore extends BaseStore {
 		return this.data[name]
 	}
 
-	createSheet(name: string, id: string = "id"): void {
+	createSheet(name: string, id = "id"): void {
 		if (!name) throw new Error("wrong parameter")
 		if (this.data[name]) throw new Error("sheet already exist " + name)
 		this.data[name] = {

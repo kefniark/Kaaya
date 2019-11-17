@@ -1,27 +1,43 @@
+// [KAAYA] Build: 0.1.0 - November 17, 2019
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
 	(global = global || self, factory(global.Kaaya = {}));
 }(this, (function (exports) { 'use strict';
 
-	/**
-	 * Provide polyfill around Date.now()
-	 */
-	const now = typeof Date.now === "function" ? Date.now : new Date().getTime;
-	const start = now();
-	/**
-	 * Provide polyfill around performance.now()
-	 */
-	/* istanbul ignore next */
-	const perf = () => {
-	    if (globalThis && globalThis.performance) {
-	        return globalThis.performance.now();
-	    }
-	    else if (globalThis.process) {
-	        return process.hrtime()[1];
-	    }
-	    return now() - start;
-	};
+	// [COOPA] Build: 0.2.1 - November 17, 2019
+
+	// Used only as a polyfill for DOMMatrix
+	/* istanbul ignore file */
+	/* eslint @typescript-eslint/no-use-before-define: 0 */
+	var Matrix3D;
+	(function (Matrix3D) {
+	    Matrix3D[Matrix3D["M11"] = 0] = "M11";
+	    Matrix3D[Matrix3D["M12"] = 1] = "M12";
+	    Matrix3D[Matrix3D["M13"] = 2] = "M13";
+	    Matrix3D[Matrix3D["M14"] = 3] = "M14";
+	    Matrix3D[Matrix3D["M21"] = 4] = "M21";
+	    Matrix3D[Matrix3D["M22"] = 5] = "M22";
+	    Matrix3D[Matrix3D["M23"] = 6] = "M23";
+	    Matrix3D[Matrix3D["M24"] = 7] = "M24";
+	    Matrix3D[Matrix3D["M31"] = 8] = "M31";
+	    Matrix3D[Matrix3D["M32"] = 9] = "M32";
+	    Matrix3D[Matrix3D["M33"] = 10] = "M33";
+	    Matrix3D[Matrix3D["M34"] = 11] = "M34";
+	    Matrix3D[Matrix3D["M41"] = 12] = "M41";
+	    Matrix3D[Matrix3D["M42"] = 13] = "M42";
+	    Matrix3D[Matrix3D["M43"] = 14] = "M43";
+	    Matrix3D[Matrix3D["M44"] = 15] = "M44";
+	})(Matrix3D || (Matrix3D = {}));
+	var Matrix2D;
+	(function (Matrix2D) {
+	    Matrix2D[Matrix2D["A"] = 0] = "A";
+	    Matrix2D[Matrix2D["B"] = 1] = "B";
+	    Matrix2D[Matrix2D["C"] = 4] = "C";
+	    Matrix2D[Matrix2D["D"] = 5] = "D";
+	    Matrix2D[Matrix2D["E"] = 12] = "E";
+	    Matrix2D[Matrix2D["F"] = 13] = "F";
+	})(Matrix2D || (Matrix2D = {}));
 
 	/// Inspired by https://basarat.gitbooks.io/typescript/docs/tips/typed-event.html
 	class Event {
@@ -125,14 +141,25 @@
 	    map.set(objToWatch, "");
 	    return new Proxy(objToWatch, handler);
 	}
-	if (!Math.hypot) {
-	    Math.hypot = function () {
-	        var y = 0, i = arguments.length;
-	        while (i--)
-	            y += arguments[i] * arguments[i];
-	        return Math.sqrt(y);
-	    };
-	}
+
+	/**
+	 * Provide polyfill around Date.now()
+	 */
+	const now = typeof Date.now === "function" ? Date.now : new Date().getTime;
+	const start = now();
+	/**
+	 * Provide polyfill around performance.now()
+	 */
+	/* istanbul ignore next */
+	const perf = () => {
+	    if (globalThis && globalThis.performance) {
+	        return globalThis.performance.now();
+	    }
+	    else if (globalThis.process) {
+	        return process.hrtime()[1];
+	    }
+	    return now() - start;
+	};
 
 	class Entity {
 	    constructor(store, data) {
@@ -214,6 +241,7 @@
 	// 	}
 	// }
 
+	/* eslint @typescript-eslint/no-empty-function: 0 */
 	class Component {
 	    constructor(store, data) {
 	        this.dataDefault = {
@@ -518,7 +546,7 @@
 	        this.syncQueue.push(() => this.syncAsyncExecute(obj, history));
 	        if (!this.syncCurrent) {
 	            let elem = this.syncQueue.shift();
-	            while (!!elem) {
+	            while (elem) {
 	                this.syncCurrent = elem;
 	                await elem();
 	                elem = this.syncQueue.shift();

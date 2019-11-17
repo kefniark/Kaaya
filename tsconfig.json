@@ -4,9 +4,10 @@
 		"typeRoots": ["node_modules/@types"],
 		"lib": ["esnext", "dom"],
 		"target": "esnext",
-		"outDir": "./lib",
-		"types": ["node"],
-		"module": "commonjs",
+		"outDir": "./build",
+		"declaration": false,
+		"module": "esnext",
+		"moduleResolution": "node",
 
 		// build settings
 		"sourceMap": true,
