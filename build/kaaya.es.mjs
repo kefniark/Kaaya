@@ -1,5 +1,5 @@
 // [KAAYA] Build: 0.1.0 - November 17, 2019
-// [COOPA] Build: 0.2.1 - November 17, 2019
+// [COOPA] Build: 0.2.2 - November 17, 2019
 
 // Used only as a polyfill for DOMMatrix
 /* istanbul ignore file */

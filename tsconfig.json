@@ -12,8 +12,7 @@
 		// build settings
 		"sourceMap": true,
 		"pretty": true,
-		"declaration": true,
-		"preserveConstEnums": true,
+		"preserveConstEnums": false,
 		"allowSyntheticDefaultImports": true,
 		"experimentalDecorators": true,
 

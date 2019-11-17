@@ -1,0 +1,36 @@
+import { Event } from "coopa";
+export declare class DataStore {
+    evtCreate: Event<any>;
+    evtApply: Event<any>;
+    private hook;
+    addHookBefore(name: string, path: string, promise: (obj: any, mut: any) => Promise<void>): void;
+    addHookAfter(name: string, path: string, promise: (obj: any, mut: any) => Promise<void>): void;
+    id: string;
+    private mutations;
+    private history;
+    historyIds: Set<string>;
+    private transactionMeta;
+    private transactionHistory;
+    private lastUndoIndex;
+    private undoBuffer;
+    private undoMap;
+    get nextUndoId(): string | number;
+    get nextRedoId(): string | number;
+    constructor();
+    keepUndoObject(id: string, val: any): void;
+    addHistory(mut: any, force?: boolean): void;
+    transactionStart(meta?: any): void;
+    transactionEnd(path: string, meta?: any): void;
+    createMutation(name: string, path: string, data: any): any;
+    registerMutation(name: string, cb: (obj: any, mut: any, forward?: boolean) => void): void;
+    revertMutation(obj: any, mut: any): void;
+    applyMutation(obj: any, mut: any): void;
+    hookBefore(obj: any, mut: any): Promise<void>;
+    hookAfter(obj: any, mut: any): Promise<void>;
+    sync(obj: any, history: any[]): void;
+    private syncCurrent;
+    private syncQueue;
+    syncAsyncExecute(obj: any, history: any[]): Promise<void>;
+    syncAsync(obj: any, history: any[]): Promise<void>;
+    getHistory(): any[];
+}
