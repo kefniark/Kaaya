@@ -11,7 +11,7 @@ Kaaya is a delightful javascript library which target on state management and da
 [![Coverage Status](https://coveralls.io/repos/github/kefniark/Kaaya/badge.svg?branch=master)](https://coveralls.io/github/kefniark/Kaaya?branch=master)
 [![License](https://img.shields.io/npm/l/kaaya.svg)](https://npmjs.org/package/kaaya)
 
-> Still under development, do not use except for testing :P
+> Still under development, do not use except for testing
 
 -   Support different data structure (and their usual format):
     -   **Key Value**: Often used to store configuration (`.ini`, `.yaml`, `.json`)
